@@ -7,8 +7,6 @@
 
 # Ignore everything
 *
-test
-
 # But not these files...
 !/.gitignore
 
