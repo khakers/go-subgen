@@ -5,10 +5,10 @@ import (
 	"io"
 	"time"
 
+	"github.com/ggerganov/whisper.cpp/bindings/go/pkg/whisper"
 	log "github.com/sirupsen/logrus"
 	"go-subgen/internal"
-
-	"github.com/ggerganov/whisper.cpp/bindings/go/pkg/whisper"
+	"go-subgen/pkg/configuration"
 )
 
 func Generate(modelPath string, input []byte, subsWriter io.Writer) error {
@@ -40,51 +40,25 @@ func Process(model whisper.Model, input []byte, subsWriter io.Writer) error {
 	}
 
 	log.Debugf(context.SystemInfo())
-	context.SetThreads(Cfg.WhisperConf.Threads)
-	context.SetLanguage(Cfg.TargetLang)
-	context.SetSpeedup(Cfg.WhisperConf.WhisperSpeedup)
 
-	// log.Infof("decoding wav")
-	// size, _ := input.Seek(0, io.SeekEnd)
-	// log.Debugf("size %v", size)
-	// _, _ = input.Seek(0, io.SeekStart)
+	if configuration.Cfg.WhisperConf.Threads != 0 {
+		context.SetThreads(configuration.Cfg.WhisperConf.Threads)
+	}
+	if configuration.Cfg.WhisperConf.MaxSegmentLength != 0 {
+		context.SetMaxSegmentLength(configuration.Cfg.WhisperConf.MaxSegmentLength)
+	}
+	if configuration.Cfg.WhisperConf.MaxTokensPerSegment != 0 {
+		context.SetMaxTokensPerSegment(configuration.Cfg.WhisperConf.MaxSegmentLength)
+	}
+	if configuration.Cfg.WhisperConf.TokenSumThreshold != 0 {
+		context.SetTokenSumThreshold(configuration.Cfg.WhisperConf.TokenSumThreshold)
+	}
+	if configuration.Cfg.WhisperConf.TokenThreshold != 0 {
+		context.SetTokenSumThreshold(configuration.Cfg.WhisperConf.TokenThreshold)
+	}
 
-	// decoder := wav.NewDecoder(input)
-	//
-	// if !decoder.IsValidFile() {
-	// 	err = decoder.Err()
-	// 	log.Debugln(err)
-	// 	return errors.New("wav file was invalid")
-	// } else {
-	// 	log.Debugf("wav file was valid")
-	// }
-	// err = decoder.Rewind()
-	// if err != nil {
-	// 	return err
-	// }
-	//
-	// // TODO see if a buffer would be usable here to avoid loading all audio into memory
-	// err = decoder.Err()
-	// if err != nil {
-	// 	return err
-	// }
-	//
-	// pcmBuffer, err := decoder.FullPCMBuffer()
-	// if err != nil {
-	// 	return err
-	// }
-	//
-	// log.Debugf("pcmBuffer frames: %v", pcmBuffer.NumFrames())
-	// // todo we can probably decode directly to this from ffmpeg
-	// data := pcmBuffer.AsFloat32Buffer().Data
-	//
-	// if len(data) == 0 {
-	// 	return errors.New("empty float32 buffer")
-	// }
-	//
-	// log.Debugf("float32len %v", len(data))
-	//
-	// log.Infof("finished decoding WAV")
+	context.SetLanguage(configuration.Cfg.TargetLang)
+	context.SetSpeedup(configuration.Cfg.WhisperConf.WhisperSpeedup)
 
 	data := internal.ConvertPCMBytes(input)
 

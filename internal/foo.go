@@ -13,6 +13,7 @@ import (
 	"go-subgen/internal/projectpath"
 )
 
+// cursed test method
 func foo() {
 
 	file, err := os.ReadFile(filepath.Join(projectpath.TestSamples, "micro_machines_sample.wav"))

@@ -10,6 +10,7 @@ import (
 	"github.com/kalafut/imohash"
 	"github.com/nightlyone/lockfile"
 	log "github.com/sirupsen/logrus"
+	"go-subgen/pkg/configuration"
 )
 
 type QueuedSub struct {
@@ -52,7 +53,7 @@ func queueWorker(jobChan <-chan QueuedSub) {
 
 var jobChan chan QueuedSub
 
-func StartWorkers(config Config) {
+func StartWorkers(config configuration.Config) {
 	// makes a channel of QueuedSubs with a capacity of 100.
 	jobChan = make(chan QueuedSub, 100)
 
@@ -93,7 +94,7 @@ func process(sub QueuedSub) {
 
 	log.Println("completed audio stripping")
 	// todo remove ext from filename or use provided one
-	subFilePath := filepath.Join(filepath.Dir(sub.filepath), filepath.Base(sub.filepath)+".subgen."+Cfg.TargetLang+".srt")
+	subFilePath := filepath.Join(filepath.Dir(sub.filepath), filepath.Base(sub.filepath)+".subgen."+configuration.Cfg.TargetLang+".srt")
 	log.Printf("created srt file %v", subFilePath)
 	subFile, err := os.Create(subFilePath)
 	if err != nil {
@@ -107,7 +108,7 @@ func process(sub QueuedSub) {
 		}
 	}(subFile)
 
-	err = Generate(GetModelLocation(Cfg), buffer.Bytes(), subFile)
+	err = Generate(configuration.GetModelPathFromConfig(configuration.Cfg), buffer.Bytes(), subFile)
 	if err != nil {
 		log.WithError(err).Errorln("Generating subtitles failed")
 		return

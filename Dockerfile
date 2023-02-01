@@ -35,6 +35,8 @@ COPY --from=mwader/static-ffmpeg:5.1.2 /versions.json /subgen
 COPY --link --from=Build /app/main /subgen
 COPY --link --from=Build /whisper/libwhisper.a /subgen
 
+ENV MODEL_DIR=/models
+
 
 USER 2000:2000
 

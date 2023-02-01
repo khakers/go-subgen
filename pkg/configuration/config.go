@@ -1,4 +1,4 @@
-package pkg
+package configuration
 
 import (
 	"path/filepath"
@@ -14,7 +14,8 @@ type Config struct {
 	WhisperConf      WhisherConfig `json:"whisper_conf"`
 	MaxConcurrency   uint          `json:"max_concurrency,omitempty" default:"1"`
 	ModelDir         string        `json:"model_dir,omitempty"`
-	LogLevel         log.Level     `json:"log_level" default:"debug"`
+	LogLevel         log.Level     `json:"log_level" default:"info"`
+	VerifyModelHash  bool          `json:"verify_model_hash" default:"true"`
 }
 
 type WhisherConfig struct {
@@ -31,16 +32,16 @@ type WhisherConfig struct {
 type Model uint8
 
 const (
-	tiny_en Model = iota
-	tiny
-	base_en
-	base
-	small_en
-	small
-	medium_en
-	medium
-	large_v1
-	large
+	Tiny_en Model = iota
+	Tiny
+	Base_en
+	Base
+	Small_en
+	Small
+	Medium_en
+	Medium
+	Large_v1
+	Large
 )
 
 func LoadConfig() (Config, error) {
@@ -56,8 +57,12 @@ func LoadConfig() (Config, error) {
 	return Cfg, nil
 }
 
-func GetModelLocation(config Config) string {
-	return filepath.Join(config.ModelDir, "ggml-"+config.ModelType.String()+".bin")
+func GetModelPathFromConfig(config Config) string {
+	return GetModelPath(config, config.ModelType)
+}
+
+func GetModelPath(config Config, model Model) string {
+	return filepath.Join(config.ModelDir, "ggml-"+model.String()+".bin")
 }
 
 var Cfg Config
