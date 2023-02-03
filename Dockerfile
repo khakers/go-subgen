@@ -24,7 +24,15 @@ COPY . ./
 
 RUN go build -o main
 
-FROM debian:bullseye-slim
+FROM ubuntu:22.04
+
+# Install ca-certificates because apparently we might not actually want ssl to work by default?
+RUN set -e; \
+      export DEBIAN_FRONTEND=noninteractive; \
+      apt-get update; \
+      apt-get install -y --no-install-recommends ca-certificates
+
+RUN mkdir "/models/"
 
 WORKDIR /subgen
 
@@ -32,13 +40,14 @@ COPY --from=mwader/static-ffmpeg:5.1.2 /ffmpeg /usr/local/bin/
 #COPY --from=mwader/static-ffmpeg:5.1.2 /ffprobe /usr/local/bin/
 COPY --from=mwader/static-ffmpeg:5.1.2 /versions.json /subgen
 
-COPY --link --from=Build /app/main /subgen
 COPY --link --from=Build /whisper/libwhisper.a /subgen
+
+COPY --link --from=Build /app/main /subgen
 
 ENV MODEL_DIR=/models
 
 
-USER 2000:2000
+#USER 2000:2000
 
 EXPOSE 8080
 

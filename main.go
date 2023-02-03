@@ -22,7 +22,7 @@ func main() {
 
 	downloaded, err := config.IsModelDownloaded(conf.ModelType)
 	if err != nil {
-		log.WithError(err).Errorln("Model check failed")
+		log.WithError(err).Errorln("Model check failed (this is likely normal and can be ignored)")
 	}
 	if !downloaded {
 		err := config.DownloadModel(conf.ModelType)

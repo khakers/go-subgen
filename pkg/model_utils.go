@@ -23,16 +23,17 @@ func DownloadModel(model configuration.Model) error {
 	log.Debugf("downloading from %v", source)
 
 	out, err := os.Create(configuration.GetModelPath(configuration.Cfg, model))
-	defer out.Close()
 	if err != nil {
 		return err
 	}
+	defer out.Close()
 
 	resp, err := http.Get(source)
-	defer resp.Body.Close()
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
+
 	_, err = io.Copy(out, resp.Body)
 
 	log.Println("model downloaded")
