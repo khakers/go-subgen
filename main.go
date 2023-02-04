@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 
 	log "github.com/sirupsen/logrus"
 	config "go-subgen/pkg"
@@ -35,8 +36,7 @@ func main() {
 	http.Handle("/webhooks/generic", http.HandlerFunc(webhooks.ServeGeneric))
 
 	config.StartWorkers(conf)
-
-	err = http.ListenAndServe(":8095", nil)
+	err = http.ListenAndServe(":"+strconv.Itoa(int(conf.Port)), nil)
 	if err != nil {
 		log.WithError(err).Fatal("web server failure")
 	}

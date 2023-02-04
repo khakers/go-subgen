@@ -16,6 +16,7 @@ type Config struct {
 	ModelDir         string        `json:"model_dir,omitempty"`
 	LogLevel         log.Level     `json:"log_level" default:"info"`
 	VerifyModelHash  bool          `json:"verify_model_hash" default:"true"`
+	Port             uint16        `json:"port" default:"8095"`
 }
 
 type WhisherConfig struct {
