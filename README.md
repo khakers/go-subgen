@@ -11,6 +11,7 @@ Whisper.cpp is relatively CPU and RAM intensive depending on the model you use, 
 * no temp audio files (kept entirely in memory)
 * Queues files
 * Doesn't have direct plex webhook integration
+* Can process multiple files at once if desired (files are locked so theoretically even multiple go-subgen instances should not conflict)
 
 ## Todo/Future
 * Finish this README
@@ -18,12 +19,13 @@ Whisper.cpp is relatively CPU and RAM intensive depending on the model you use, 
 * Subtitle file templating (you provide a template for what you want your file names to look like based off its variables)
 * Persistent Queue
 * Translation and more advanced media checking (don't run if file already has subs, for example)
+* A basic web ui to queue transcription and view queued/in progress tasks.
 
 ## Endpoints
 Currently, go-subgen provides 2 webhook endpoints
 
 ### Tautulli
-Which is designed around being compatible with subgens Tautullo webhook and accepts the same json payload
+Which is designed around being compatible with subgens Tautulli webhook and accepts the same json payload
 
 However, go-subgen currently only uses 'file' and ignores the rest of the json data.
 ```json
@@ -38,6 +40,15 @@ However, go-subgen currently only uses 'file' and ignores the rest of the json d
 ### Generic
 
 A very basic post endpoint that accepts a json array of file paths
+
+```json
+{
+  "files": [
+    "/path/to/file.mp4",
+    "/path/to/other/file.mkv"
+  ]
+}
+```
 
 ## Configuration
 

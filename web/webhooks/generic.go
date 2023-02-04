@@ -11,7 +11,7 @@ import (
 )
 
 type GenericWebhookData struct {
-	File string `json:"file"`
+	Files []string `json:"file"`
 }
 
 func ServeGeneric(w http.ResponseWriter, r *http.Request) {
@@ -23,6 +23,8 @@ func ServeGeneric(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "error: %v", err)
 		return
 	}
-	pkg.EnqueueSub(data.File)
+	for _, s := range data.Files {
+		pkg.EnqueueSub(s)
+	}
 	w.WriteHeader(200)
 }
