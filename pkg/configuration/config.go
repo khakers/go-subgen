@@ -19,7 +19,7 @@ type Config struct {
 	Port             uint16        `json:"port" default:"8095"`
 }
 
-type WhisherConfig struct {
+type WhisperConfig struct {
 	Threads             uint    `json:"threads,omitempty"`
 	WhisperSpeedup      bool    `json:"whisper_speedup,omitempty"`
 	TokenThreshold      float32 `json:"token_threshold,omitempty"`
