@@ -28,6 +28,7 @@ FROM ubuntu:22.04
 
 # Install ca-certificates because apparently we might not actually want ssl to work by default?
 RUN set -e; \
+      sed -i 's/htt[p|ps]:\/\/archive.ubuntu.com\/ubuntu\//mirror:\/\/mirrors.ubuntu.com\/mirrors.txt/g' /etc/apt/sources.list && \
       export DEBIAN_FRONTEND=noninteractive; \
       apt-get update; \
       apt-get install -y --no-install-recommends ca-certificates && \
