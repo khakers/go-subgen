@@ -30,7 +30,10 @@ FROM ubuntu:22.04
 RUN set -e; \
       export DEBIAN_FRONTEND=noninteractive; \
       apt-get update; \
-      apt-get install -y --no-install-recommends ca-certificates
+      apt-get install -y --no-install-recommends ca-certificates && \
+      rm -rf /var/cache/apt && \
+      apt-get clean && \
+      rm -rf /var/lib/apt/lists/*
 
 RUN mkdir "/models/"
 
