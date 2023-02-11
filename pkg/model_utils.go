@@ -39,7 +39,7 @@ func DownloadModel(model configuration.Model) error {
 	log.Println("model downloaded")
 
 	if configuration.Cfg.VerifyModelHash {
-		hash, err := verifyHash(configuration.GetModelPath(configuration.Cfg, model), GetHash(model))
+		hash, err := verifyHash(configuration.GetModelPath(configuration.Cfg, model), GetModelShaHash(model))
 		if err != nil {
 			return err
 		}
@@ -60,7 +60,7 @@ func IsModelDownloaded(model configuration.Model) (bool, error) {
 	}
 
 	if configuration.Cfg.VerifyModelHash {
-		hash, err := verifyHash(configuration.GetModelPath(configuration.Cfg, model), GetHash(configuration.Cfg.ModelType))
+		hash, err := verifyHash(configuration.GetModelPath(configuration.Cfg, model), GetModelShaHash(configuration.Cfg.ModelType))
 		if err != nil {
 			return false, err
 
@@ -91,7 +91,7 @@ func verifyHash(path string, expected string) (matches bool, err error) {
 	if expected == result {
 		return true, nil
 	} else {
-		log.Debugf("expected %v, got %v", GetHash(configuration.Cfg.ModelType), result)
+		log.Debugf("expected %v, got %v", GetModelShaHash(configuration.Cfg.ModelType), result)
 		return false, nil
 	}
 }

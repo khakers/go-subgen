@@ -2,7 +2,7 @@ package pkg
 
 import "go-subgen/pkg/configuration"
 
-func GetHash(model configuration.Model) string {
+func GetModelShaHash(model configuration.Model) string {
 	switch model {
 	case configuration.Tiny:
 		return "bd577a113a864445d4c299885e0cb97d4ba92b5f"
