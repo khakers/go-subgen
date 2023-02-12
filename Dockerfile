@@ -6,7 +6,7 @@ FROM golang:1.19-bullseye as Build
 RUN apt install make g++
 
 
-ADD https://github.com/ggerganov/whisper.cpp.git /whisper
+ADD https://github.com/ggerganov/whisper.cpp.git#v1.2.0 /whisper
 WORKDIR /whisper
 
 RUN make libwhisper.a
@@ -28,7 +28,6 @@ FROM ubuntu:22.04
 
 # Install ca-certificates because apparently we might not actually want ssl to work by default?
 RUN set -e; \
-      sed -i 's/htt[p|ps]:\/\/archive.ubuntu.com\/ubuntu\//mirror:\/\/mirrors.ubuntu.com\/mirrors.txt/g' /etc/apt/sources.list && \
       export DEBIAN_FRONTEND=noninteractive; \
       apt-get update; \
       apt-get install -y --no-install-recommends ca-certificates && \
@@ -44,12 +43,9 @@ COPY --from=mwader/static-ffmpeg:5.1.2 /ffmpeg /usr/local/bin/
 #COPY --from=mwader/static-ffmpeg:5.1.2 /ffprobe /usr/local/bin/
 COPY --from=mwader/static-ffmpeg:5.1.2 /versions.json /subgen
 
-COPY --link --from=Build /whisper/libwhisper.a /subgen
-
 COPY --link --from=Build /app/main /subgen
 
 ENV MODEL_DIR=/models
-
 
 #USER 2000:2000
 
