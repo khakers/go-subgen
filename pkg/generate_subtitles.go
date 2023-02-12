@@ -6,10 +6,12 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/kalafut/imohash"
 	"github.com/nightlyone/lockfile"
 	log "github.com/sirupsen/logrus"
+	"go-subgen/internal"
 	"go-subgen/pkg/configuration"
 )
 
@@ -22,7 +24,7 @@ func EnqueueSub(input string) {
 	input, err := filepath.Abs(input)
 	log.Printf("Queueing file %v", input)
 
-	filehash, err := getFileHash(input)
+	filehash, err := GetFileHash(input)
 	if err != nil {
 		log.WithError(err).Println("failed to generate file hash")
 		return
@@ -37,7 +39,8 @@ func EnqueueSub(input string) {
 	return
 }
 
-func getFileHash(filePath string) (hash [16]byte, err error) {
+func GetFileHash(filePath string) (hash [16]byte, err error) {
+	// Using imohash because I don't want to spend forever hashing a plausible worst case media file
 	hash, err = imohash.SumFile(filePath)
 	if err != nil {
 		return hash, err
@@ -67,7 +70,18 @@ func process(sub QueuedSub) {
 
 	log.Infof("Processing job for file %v", sub.filepath)
 
-	hashString := hex.EncodeToString(sub.filehash[:])
+	filehash, err := GetFileHash(sub.filepath)
+	if err != nil {
+		log.WithError(err).Println("failed to generate file hash")
+		return
+	}
+
+	if filehash != sub.filehash {
+		log.Warnf("The hash for file \"%v\" has changed since it was queued", sub.filepath)
+	}
+
+	// We always want to use the most recent hash of the file
+	hashString := hex.EncodeToString(filehash[:])
 
 	lock, err := lockfile.New(filepath.Join(filepath.Dir(sub.filepath), hashString+".lock"))
 	if err != nil {
@@ -86,16 +100,32 @@ func process(sub QueuedSub) {
 
 	buffer := new(bytes.Buffer)
 
+	start := time.Now()
+
 	err = StripAudioRaw(sub.filepath, buffer, io.Discard)
 	if err != nil {
 		log.WithError(err).Errorln("Stripping audio failed")
 		return
 	}
+	audioStripDuration := time.Since(start)
 
-	log.Println("completed audio stripping")
-	// todo remove ext from filename or use provided one
-	subFilePath := filepath.Join(filepath.Dir(sub.filepath), filepath.Base(sub.filepath)+".subgen."+configuration.Cfg.TargetLang+".srt")
+	log.Printf("completed audio stripping in %v seconds.", audioStripDuration.Seconds())
+
+	err, subFileName := configuration.Cfg.GetSubtitleFileName(internal.SubtitleTemplateData{
+		FilePath:  sub.filepath,
+		FileName:  internal.GetFileName(sub.filepath),
+		Lang:      configuration.Cfg.TargetLang,
+		FileHash:  hashString,
+		ModelType: string(configuration.Cfg.ModelType),
+	})
+	if err != nil {
+		log.WithError(err).Errorln("failed to template subtitle file name")
+	}
+
+	subFilePath := filepath.Join(filepath.Dir(sub.filepath), subFileName)
+
 	log.Printf("created srt file %v", subFilePath)
+
 	subFile, err := os.Create(subFilePath)
 	if err != nil {
 		return
@@ -108,10 +138,15 @@ func process(sub QueuedSub) {
 		}
 	}(subFile)
 
-	err = Generate(configuration.GetModelPathFromConfig(configuration.Cfg), buffer.Bytes(), subFile)
+	start = time.Now()
+
+	err = Generate(configuration.Cfg.GetModelPathFromConfig(), buffer.Bytes(), subFile)
 	if err != nil {
 		log.WithError(err).Errorln("Generating subtitles failed")
 		return
 	}
-	log.Infof("finished generated subtitles for \"%v\". Sub file is at \"%v\"", sub.filepath, subFilePath)
+
+	subDuration := time.Since(start)
+
+	log.Infof("finished generated subtitles for \"%v\" in %v seconds. Sub file is at \"%v\"", sub.filepath, subDuration.Seconds(), subFilePath)
 }

@@ -1,33 +1,42 @@
 # go-subgen
+
 A Go adaptation of [McCloudS/subgen](https://github.com/McCloudS/subgen)
 
-Runs a webserver that upon receiving a webhook with a file path will use whisper.cpp to generate subtitles in a .srt file.
+Runs a webserver that upon receiving a webhook with a file path will use whisper.cpp to generate subtitles in a .srt
+file.
 
-Whisper.cpp is relatively CPU and RAM intensive depending on the model you use, and go-subgen also stores the stripped audio in memory instead of saving it to the filesystem. If you have large media files
+Whisper.cpp is relatively CPU and RAM intensive depending on the model you use, and go-subgen also stores the stripped
+audio in memory instead of saving it to the filesystem. If you have large media files
 
 ## Differences from Subgen
+
 * Written in Go (if you care)
+* Subtitle filename templating (see [subfile-name-templating](#subfile-name-templating))
 * Docker uses static ffmpeg build from mwader
-* no temp audio files (kept entirely in memory)
+* no temp audio files (extracted audio is kept entirely in memory)
 * Queues files
 * Doesn't have direct plex webhook integration
-* Can process multiple files at once if desired (files are locked so theoretically even multiple go-subgen instances should not conflict)
+* Can process multiple files at once if desired (files are locked so theoretically even multiple go-subgen instances
+  should not conflict)
 
 ## Todo/Future
+
 * Finish this README
 * Further integrations/webhooks (at least webhooks from the *arrs)
-* Subtitle file templating (you provide a template for what you want your file names to look like based off its variables)
 * Persistent Queue
 * Translation and more advanced media checking (don't run if file already has subs, for example)
 * A basic web ui to queue transcription and view queued/in progress tasks.
 
 ## Endpoints
+
 Currently, go-subgen provides 2 webhook endpoints
 
 ### Tautulli
+
 Which is designed around being compatible with subgens Tautulli webhook and accepts the same json payload
 
 However, go-subgen currently only uses 'file' and ignores the rest of the json data.
+
 ```json
 {
   "event": "",
@@ -52,3 +61,25 @@ A very basic post endpoint that accepts a json array of file paths
 
 ## Configuration
 
+### Subfile name templating
+
+Go-Subgen allows you to configure how subtitle files are name using Go templates.
+
+The default filename templates is as follows:
+`{{.FileName}}.subgen.{{.Lang}}.{{.FileType}}`
+
+You can set your own template by setting the environment variable `SUBTITLE_NAME_TEMPLATE`. The template is created
+using the struct below. You can use any of the variables provided and any features of the Go templating system, but keep
+in mind no escaping is applied to the result. Additionally, FileHash ***is not*** a SHA hash. It is a hash generated using imohash
+which hashes only portions of the file using murmur3
+
+```go
+type SubtitleTemplateData struct {
+FilePath  string
+FileName  string
+Lang      string
+FileHash  string
+FileType  string
+ModelType string
+}
+```
