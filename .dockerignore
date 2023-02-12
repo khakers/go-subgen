@@ -7,6 +7,8 @@
 
 # Ignore everything
 *
+# Ignore the IDE, these are not duplicate and not having this makes the build context potentially *very* large
+**
 # But not these files...
 !/.gitignore
 
