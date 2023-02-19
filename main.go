@@ -34,6 +34,7 @@ func main() {
 
 	http.Handle("/webhooks/tautulli", http.HandlerFunc(webhooks.ServeTautulli))
 	http.Handle("/webhooks/generic", http.HandlerFunc(webhooks.ServeGeneric))
+	http.Handle("/webhooks/radarr", http.HandlerFunc(webhooks.ServeRadarr))
 
 	config.StartWorkers(conf)
 	err = http.ListenAndServe(":"+strconv.Itoa(int(conf.Port)), nil)
