@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
 	"go-subgen/pkg"
@@ -87,9 +88,10 @@ func ServeRadarr(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
+	path := filepath.Join(data.Movie.FolderPath, data.MovieFile.RelativePath)
 
-	log.Debugln("Decoded Radarr webhook json data")
-	pkg.EnqueueSub(data.MovieFile.Path)
+	log.WithField("data", fmt.Sprintf("%+v", data)).Debugln("Decoded Radarr webhook json data")
+	pkg.EnqueueSub(path)
 	log.Debugf("Queued %v from radarr", data.MovieFile.Path)
 	w.WriteHeader(200)
 }
