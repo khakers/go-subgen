@@ -89,7 +89,7 @@ func process(sub QueuedSub) {
 		return
 	}
 
-	log.Printf("Locking file with hash %v at %v", hashString, filepath.Join(filepath.Dir(sub.filepath), hashString+".lock"))
+	log.Debugf("Locking file with hash %v at %v", hashString, filepath.Join(filepath.Dir(sub.filepath), hashString+".lock"))
 
 	err = lock.TryLock()
 	if err != nil {
