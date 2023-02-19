@@ -70,7 +70,8 @@ The default filename templates is as follows:
 
 You can set your own template by setting the environment variable `SUBTITLE_NAME_TEMPLATE`. The template is created
 using the struct below. You can use any of the variables provided and any features of the Go templating system, but keep
-in mind no escaping is applied to the result. Additionally, FileHash ***is not*** a SHA hash. It is a hash generated using imohash
+in mind no escaping is applied to the result. Additionally, FileHash ***is not*** a SHA hash. It is a hash generated
+using imohash
 which hashes only portions of the file using murmur3
 
 ```go
