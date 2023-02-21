@@ -35,7 +35,7 @@ RUN set -e; \
       apt-get clean && \
       rm -rf /var/lib/apt/lists/*
 
-RUN mkdir "/models/"
+RUN mkdir "/models/" && mkdir /subgen/
 
 WORKDIR /subgen
 
