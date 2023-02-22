@@ -16,7 +16,7 @@ type Config struct {
 	IgnoreIfExisting     bool          `default:"true" json:"ignore_if_existing,omitempty"`
 	WhisperConf          WhisperConfig `json:"whisper_conf"`
 	MaxConcurrency       uint          `json:"max_concurrency,omitempty" default:"1"`
-	ModelDir             string        `json:"model_dir,omitempty"`
+	ModelDir             string        `json:"model_dir,omitempty" default:"/models/"`
 	LogLevel             log.Level     `json:"log_level" default:"info"`
 	VerifyModelHash      bool          `json:"verify_model_hash" default:"true"`
 	Port                 uint16        `json:"port" default:"8095"`
