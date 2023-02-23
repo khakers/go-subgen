@@ -35,7 +35,7 @@ RUN set -e; \
       apt-get clean && \
       rm -rf /var/lib/apt/lists/*
 
-RUN mkdir "/models/" && mkdir /subgen/
+RUN mkdir "/models" && mkdir /subgen
 
 WORKDIR /subgen
 
@@ -46,8 +46,6 @@ COPY --from=mwader/static-ffmpeg:5.1.2 /versions.json /subgen
 COPY --link --from=Build /app/main /subgen
 
 ENV MODEL_DIR=/models
-
-#USER 2000:2000
 
 EXPOSE 8080
 
