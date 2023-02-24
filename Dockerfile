@@ -43,7 +43,7 @@ COPY --from=mwader/static-ffmpeg:5.1.2 /ffmpeg /usr/local/bin/
 #COPY --from=mwader/static-ffmpeg:5.1.2 /ffprobe /usr/local/bin/
 COPY --from=mwader/static-ffmpeg:5.1.2 /versions.json /subgen
 
-COPY --link --from=Build /app/main /subgen
+COPY --from=Build /app/main /subgen
 
 ENV MODEL_DIR=/models
 
