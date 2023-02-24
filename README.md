@@ -120,3 +120,23 @@ FileType  string
 ModelType string
 }
 ```
+
+## Options
+
+| Environment Variable                | Type      | Default                                        | Description                                                                                                  |
+|-------------------------------------|-----------|------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| MODEL_TYPE                          | Model     | base_en                                        | Whisper.cpp Model version `Tiny_en, Tiny Base_en, Base, Small_en, Small, Medium_en, Medium, Large_v1, Large` |
+| TARGET_LANG                         | string    | en                                             |                                                                                                              |
+| IGNORE_IF_EXISTING                  | bool      | true                                           |                                                                                                              |
+| MAX_CONCURRENCY                     | uint      | 1                                              |                                                                                                              |
+| MODEL_DIR                           | string    | /models/                                       |                                                                                                              |
+| LOG_LEVEL                           | log.Level | info                                           |                                                                                                              |
+| VERIFY_MODEL_HASH                   | bool      | true                                           | Verify that the downloaded model mashes the expected hash                                                    |
+| PORT                                | uint8     | 8095                                           | Web server port                                                                                              |
+| SUBTITLE_NAME_TEMPLATE              | string    | "{{.FileName}}.subgen.{{.Lang}}.{{.FileType}}" | [See Subfile-name-templating](#Subfile-name-templating)                                                      |
+| WHISPER_CONF_THREADS                | uint      |                                                | Number of threads to run Whisper.cpp on                                                                      |
+| WHISPER_CONF_WHISPER_SPEEDUP        | bool      |                                                |                                                                                                              |
+| WHISPER_CONF_TOKEN_THRESHOLD        | float32   |                                                |                                                                                                              |
+| WHISPER_CONF_TOKEN_SUM_THRESHOLD    | float32   |                                                |                                                                                                              |
+| WHISPER_CONF_MAX_SEGMENT_LENGTH     | uint      |                                                |                                                                                                              |
+| WHISPER_CONF_MAX_TOKENS_PER_SEGMENT | uint      |                                                |                                                                                                              |
