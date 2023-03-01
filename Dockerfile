@@ -6,7 +6,7 @@ FROM golang:1.19-bullseye as Build
 RUN apt install make g++
 
 
-ADD https://github.com/ggerganov/whisper.cpp.git#v1.2.0 /whisper
+ADD https://github.com/ggerganov/whisper.cpp.git#v1.2.1 /whisper
 WORKDIR /whisper
 
 RUN make libwhisper.a
