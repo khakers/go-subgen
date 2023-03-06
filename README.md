@@ -28,9 +28,7 @@ audio in memory instead of saving it to the filesystem. If you have large media 
 * Translation and more advanced media checking (don't run if file already has subs, for example)
 * A basic web ui to queue transcription and view queued/in progress tasks.
 
-## Endpoints
-
-Currently, go-subgen provides 2 webhook endpoints
+## Web API Endpoints
 
 ### Tautulli
 
