@@ -3,7 +3,7 @@ module go-subgen
 go 1.19
 
 require (
-	github.com/cristalhq/aconfig v0.18.3
+	github.com/cristalhq/aconfig v0.18.4
 	github.com/ggerganov/whisper.cpp/bindings/go v0.0.0-20230305194219-59fdcd19c8b2
 	github.com/go-audio/wav v1.1.0
 	github.com/kalafut/imohash v1.0.2
