@@ -2,7 +2,7 @@
 
 A Go adaptation of [McCloudS/subgen](https://github.com/McCloudS/subgen)
 
-Runs a webserver that upon receiving a webhook with a file path will use whisper.cpp to generate subtitles in a .srt
+Runs a webserver that upon receiving a webhook with a file path will use whisper.cpp to generate subtitles for your media and output them as an .srt
 file.
 
 Whisper.cpp is relatively CPU and RAM intensive depending on the model you use, and go-subgen also stores the stripped
@@ -16,15 +16,13 @@ audio in memory instead of saving it to the filesystem. If you have large media 
 * no temp audio files (extracted audio is kept entirely in memory)
 * Queues files
 * Doesn't have direct plex webhook integration
-* Can process multiple files at once if desired (files are locked so theoretically even multiple go-subgen instances
-  should not conflict)
+* Can process multiple files at once if desired
 * Support for Sonarr & Radarr webhooks
 
 ## Todo/Future
 
-* Finish this README
 * Further software integrations
-* Persistent Queue
+* Persistent Queue 
 * Translation and more advanced media checking (don't run if file already has subs, for example)
 * A basic web ui to queue transcription and view queued/in progress tasks.
 
@@ -110,12 +108,12 @@ which hashes only portions of the file using murmur3
 
 ```go
 type SubtitleTemplateData struct {
-FilePath  string
-FileName  string
-Lang      string
-FileHash  string
-FileType  string
-ModelType string
+  FilePath  string
+  FileName  string
+  Lang      string
+  FileHash  string
+  FileType  string
+  ModelType string
 }
 ```
 
