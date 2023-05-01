@@ -25,6 +25,7 @@ audio in memory instead of saving it to the filesystem. If you have large media 
 * Persistent Queue 
 * Translation and more advanced media checking (don't run if file already has subs, for example)
 * A basic web ui to queue transcription and view queued/in progress tasks.
+* Support for different models of whisper? (faster-whisper, openai whisper)
 
 ## Web API Endpoints
 
