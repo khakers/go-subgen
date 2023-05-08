@@ -5,7 +5,8 @@ FROM golang:1.19-bullseye as Build
 
 RUN apt install make g++
 
-
+# bump: whisper.cpp /whisper.cpp\.git#v([\d.]+)/ https://github.com/ggerganov/whisper.cpp.git|^1
+# bump: whisper.cpp link "Release notes" https://github.com/ggerganov/whisper.cpp/releases/tag/v$LATEST
 ADD https://github.com/ggerganov/whisper.cpp.git#v1.2.1 /whisper
 WORKDIR /whisper
 
@@ -39,6 +40,7 @@ RUN mkdir "/models" && mkdir /subgen
 
 WORKDIR /subgen
 
+# bump: static-ffmpeg /static-ffmpeg:([\d.]+)/ docker:mwader/static-ffmpeg|^6
 COPY --from=mwader/static-ffmpeg:5.1.2 /ffmpeg /usr/local/bin/
 #COPY --from=mwader/static-ffmpeg:5.1.2 /ffprobe /usr/local/bin/
 COPY --from=mwader/static-ffmpeg:5.1.2 /versions.json /subgen
