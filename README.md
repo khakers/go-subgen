@@ -1,23 +1,19 @@
 # go-subgen
 
-A Go adaptation of [McCloudS/subgen](https://github.com/McCloudS/subgen)
+Automatic subtitle generation for your media using [whisper.cpp](https://github.com/ggerganov/whisper.cpp).
 
 Runs a webserver that upon receiving a webhook with a file path will use whisper.cpp to generate subtitles for your media and output them as an .srt
 file.
 
-Whisper.cpp is relatively CPU and RAM intensive depending on the model you use, and go-subgen also stores the stripped
-audio in memory instead of saving it to the filesystem. If you have large media files
+Whisper.cpp is CPU and RAM intensive depending on the model you use, and go-subgen stores the stripped
+audio in memory instead of saving it to the filesystem. If you have large media files you will need lots of ram.
 
-## Differences from Subgen
+## Features
 
-* Written in Go (if you care)
+* Sonarr & Radarr webhook support
+* basic Tautulli webhook support
 * Subtitle filename templating (see [subfile-name-templating](#subfile-name-templating))
-* Docker uses static ffmpeg build from mwader
-* no temp audio files (extracted audio is kept entirely in memory)
-* Queues files
-* Doesn't have direct plex webhook integration
-* Can process multiple files at once if desired
-* Support for Sonarr & Radarr webhooks
+* File queueing
 
 ## Todo/Future
 
@@ -26,6 +22,32 @@ audio in memory instead of saving it to the filesystem. If you have large media 
 * Translation and more advanced media checking (don't run if file already has subs, for example)
 * A basic web ui to queue transcription and view queued/in progress tasks.
 * Support for different models of whisper? (faster-whisper, openai whisper)
+* Filesystem watching support
+* Integration into Bazarr as a provider (Not sure how to go about this, please open an issue if you have any ideas)
+* CLBLAST & CUBLAS support for GPU acceleration
+
+## Docker
+
+### Docker Compose
+
+```yaml
+version: "3.8"
+services:
+  subgen:
+    image: ghcr.io/khakers/go-subgen:master
+    restart: unless-stopped
+    ports:
+      - "8095:8095"
+    volumes:
+      # Path must be identical to the path in your other services
+      - /path/to/your/media:/media
+      # Models will be downloaded to this directory
+      - models:/models
+    environment:
+      - MODEL_TYPE=base_en
+volumes:
+  models:
+```
 
 ## Web API Endpoints
 
@@ -153,3 +175,8 @@ type SubtitleTemplateData struct {
 | WHISPER_CONF_TOKEN_SUM_THRESHOLD    | float32   |                                                |                                                                                                              |
 | WHISPER_CONF_MAX_SEGMENT_LENGTH     | uint      |                                                |                                                                                                              |
 | WHISPER_CONF_MAX_TOKENS_PER_SEGMENT | uint      |                                                |                                                                                                              |
+
+
+## Acknowledgements
+
+Inspired by [McCloudS/subgen](https://github.com/McCloudS/subgen) but written in Go and for more generic usage.
