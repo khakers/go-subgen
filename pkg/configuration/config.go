@@ -19,7 +19,7 @@ type Config struct {
 	ModelDir             string        `json:"model_dir,omitempty" default:"/models/"`
 	LogLevel             log.Level     `json:"log_level" default:"info"`
 	VerifyModelHash      bool          `json:"verify_model_hash" default:"true"`
-	Port                 uint16        `json:"port" default:"8080"`
+	Port                 uint16        `json:"port" default:"8095"`
 	SubtitleNameTemplate string        `json:"subtitle_name_template" default:"{{.FileName}}.subgen.{{.Lang}}.{{.FileType}}"`
 }
 
