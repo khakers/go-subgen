@@ -24,13 +24,19 @@ func EnqueueSub(input string) {
 	input, err := filepath.Abs(input)
 	log.Printf("Queueing file %v", input)
 
-	filehash, err := GetFileHash(input)
-	if err != nil {
-		log.WithError(err).Println("failed to generate file hash")
+	// Check to make sure the file exists
+	if _, err := os.Stat(input); os.IsNotExist(err) {
+		log.WithError(err).Error("File does not exist", input)
 		return
 	}
 
-	jobChan <- QueuedSub{
+	filehash, err := GetFileHash(input)
+	if err != nil {
+		log.WithError(err).Errorln("failed to generate file hash")
+		return
+	}
+
+	jobChannel <- QueuedSub{
 		filepath: input,
 		filehash: filehash,
 	}
@@ -54,15 +60,15 @@ func queueWorker(jobChan <-chan QueuedSub) {
 	}
 }
 
-var jobChan chan QueuedSub
+var jobChannel chan QueuedSub
 
 func StartWorkers(config configuration.Config) {
 	// makes a channel of QueuedSubs with a capacity of 100.
-	jobChan = make(chan QueuedSub, 100)
+	jobChannel = make(chan QueuedSub, 100)
 
 	// start the worker
 	for i := uint(0); i < config.MaxConcurrency; i++ {
-		go queueWorker(jobChan)
+		go queueWorker(jobChannel)
 	}
 }
 
@@ -148,5 +154,5 @@ func process(sub QueuedSub) {
 
 	subDuration := time.Since(start)
 
-	log.Infof("finished generated subtitles for \"%v\" in %v seconds. Sub file is at \"%v\"", sub.filepath, subDuration.Seconds(), subFilePath)
+	log.Infof("finished generating subtitles for \"%v\" in %v seconds. Sub file saved to \"%v\"", sub.filepath, subDuration.Seconds(), subFilePath)
 }
