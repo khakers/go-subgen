@@ -7,7 +7,7 @@ RUN apt install make g++
 
 # bump: whisper.cpp /whisper.cpp\.git#v([\d.]+)/ https://github.com/ggerganov/whisper.cpp.git|^1
 # bump: whisper.cpp link "Release notes" https://github.com/ggerganov/whisper.cpp/releases/tag/v$LATEST
-ADD https://github.com/ggerganov/whisper.cpp.git#v1.2.1 /whisper
+ADD https://github.com/ggerganov/whisper.cpp.git#v1.4.2 /whisper
 WORKDIR /whisper
 
 RUN make libwhisper.a
