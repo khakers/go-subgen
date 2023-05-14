@@ -32,6 +32,15 @@ func main() {
 		}
 	}
 
+	// Handle http healthcheck endpoint
+	http.Handle("/healthcheck", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, err := w.Write([]byte("OK"))
+		if err != nil {
+			log.Errorln(err)
+		}
+	}))
+
 	http.Handle("/webhooks/tautulli", http.HandlerFunc(webhooks.ServeTautulli))
 	http.Handle("/webhooks/generic", http.HandlerFunc(webhooks.ServeGeneric))
 	http.Handle("/webhooks/radarr", http.HandlerFunc(webhooks.ServeRadarr))
