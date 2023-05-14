@@ -49,6 +49,6 @@ COPY --from=Build /app/main /subgen
 
 ENV MODEL_DIR=/models
 
-EXPOSE 8080
+EXPOSE 8095
 
 CMD ["/subgen/main"]
