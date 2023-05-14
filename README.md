@@ -29,7 +29,17 @@ audio in memory instead of saving it to the filesystem. If you have large media 
 
 ## Web API Endpoints
 
+### Healthcheck
+
+GET
+
+`/healthcheck`
+
+Returns 200 if the server is running
+
 ### Tautulli
+
+POST
 
 `/webhooks/tautulli`
 
@@ -48,6 +58,8 @@ However, go-subgen currently only uses 'file' and ignores the rest of the json d
 
 ### Generic
 
+POST
+
 `/webhooks/generic`
 
 A very basic post endpoint that accepts a json array of file paths
@@ -63,6 +75,8 @@ A very basic post endpoint that accepts a json array of file paths
 
 ### Radarr
 
+POST
+
 `/webhooks/radarr`
 
 Accepts Radarr formatted webhooks
@@ -77,6 +91,8 @@ that need it.
 </details>
 
 ### Sonarr
+
+POST
 
 `/webhooks/sonarr`
 
