@@ -21,6 +21,6 @@
 
 # !Makefile
 
-# ...even if they are in subdirectories
-!*/
-
+!/pkg
+!/web
+!/internal
