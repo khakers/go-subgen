@@ -17,6 +17,7 @@ audio in memory instead of saving it to the filesystem. If you have large media 
 
 ## Todo/Future
 
+* file permissions and user handling
 * Further software integrations
 * Persistent Queue 
 * Translation and more advanced media checking (don't run if file already has subs, for example)
