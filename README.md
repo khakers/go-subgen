@@ -161,7 +161,7 @@ type SubtitleTemplateData struct {
 
 | Environment Variable                | Type      | Default                                        | Description                                                                                                  |
 |-------------------------------------|-----------|------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| MODEL_TYPE                          | Model     | base_en                                        | Whisper.cpp Model version `Tiny_en, Tiny Base_en, Base, Small_en, Small, Medium_en, Medium, Large_v1, Large` |
+| MODEL_TYPE                          | Model     | base_en                                        | Whisper.cpp Model version `tiny_en, tiny base_en, base, small_en, small, medium_en, medium, large_v1, large` |
 | TARGET_LANG                         | string    | en                                             |                                                                                                              |
 | IGNORE_IF_EXISTING                  | bool      | true                                           |                                                                                                              |
 | MAX_CONCURRENCY                     | uint      | 1                                              |                                                                                                              |
