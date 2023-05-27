@@ -119,6 +119,7 @@ func process(sub QueuedSub) {
 
 	err, subFileName := configuration.Cfg.GetSubtitleFileName(internal.SubtitleTemplateData{
 		FilePath:  sub.filepath,
+		FileType:  "srt",
 		FileName:  internal.GetFileName(sub.filepath),
 		Lang:      configuration.Cfg.TargetLang,
 		FileHash:  hashString,
