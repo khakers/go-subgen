@@ -19,7 +19,7 @@ audio in memory instead of saving it to the filesystem. If you have large media 
 
 * file permissions and user handling
 * Further software integrations
-* Persistent Queue 
+* Persistent Queue
 * Translation and more advanced media checking (don't run if file already has subs, for example)
 * A basic web ui to queue transcription and view queued/in progress tasks.
 * Support for different models of whisper? (faster-whisper, openai whisper)
@@ -31,11 +31,42 @@ audio in memory instead of saving it to the filesystem. If you have large media 
 
 ### Docker Compose
 
+#### Pre-built image
+
+If you encounter illegal instruction errors when the model attempts to run, you may need to build the image locally. See [Locally built image](#locally-built-image)
+
 ```yaml
 version: "3.8"
 services:
   subgen:
     image: ghcr.io/khakers/go-subgen:master
+    restart: unless-stopped
+    ports:
+      - "8095:8095"
+    volumes:
+      # Path must be identical to the path in your other services
+      - /path/to/your/media:/media
+      # Models will be downloaded to this directory
+      - models:/models
+    environment:
+      - MODEL_TYPE=base_en
+volumes:
+  models:
+```
+
+#### Locally built image
+
+In many cases you may want or even *need* to build the image locally. Building locally can give you better optimizations
+for your specific hardware.
+Unfortunately, this means you will need to manually trigger rebuilds (`docker compose build`) and change versions
+yourself instead of letting a service like watchtower pull newer images for you.
+
+```yaml
+version: "3.8"
+services:
+  subgen:
+    build:
+      context: https://github.com/khakers/go-subgen.git
     restart: unless-stopped
     ports:
       - "8095:8095"
