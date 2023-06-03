@@ -13,7 +13,7 @@ import (
 	"go-subgen/pkg/configuration"
 )
 
-const modelSrc = "https://huggingface.co/datasets/ggerganov/whisper.cpp/"
+const modelSrc = "https://huggingface.co/ggerganov/whisper.cpp/"
 
 func DownloadModel(model configuration.Model) error {
 	log.Printf("downloading model to %v", configuration.GetModelPath(configuration.Cfg, model))
