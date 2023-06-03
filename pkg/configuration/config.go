@@ -21,6 +21,7 @@ type Config struct {
 	VerifyModelHash      bool          `json:"verify_model_hash" default:"true"`
 	Port                 uint16        `json:"port" default:"8095"`
 	SubtitleNameTemplate string        `json:"subtitle_name_template" default:"{{.FileName}}.subgen.{{.Lang}}.{{.FileType}}"`
+	FilePermissions      FileOwner     `json:"permissions"`
 }
 
 type WhisperConfig struct {
@@ -30,6 +31,11 @@ type WhisperConfig struct {
 	TokenSumThreshold   float32 `json:"token_sum_threshold,omitempty"`
 	MaxSegmentLength    uint    `json:"max_segment_length,omitempty"`
 	MaxTokensPerSegment uint    `json:"max_tokens_per_segment,omitempty"`
+}
+
+type FileOwner struct {
+	Uid int `json:"uid,omitempty" default:"0"`
+	Gid int `json:"gid,omitempty" default:"0"`
 }
 
 //go:generate go-enum -type=Model -all=false -string=true -new=true -string=true -text=true -json=true -yaml=false

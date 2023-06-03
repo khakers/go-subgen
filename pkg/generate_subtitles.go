@@ -26,7 +26,7 @@ func EnqueueSub(input string) {
 
 	// Check to make sure the file exists
 	if _, err := os.Stat(input); os.IsNotExist(err) {
-		log.WithError(err).Error("File does not exist", input)
+		log.WithError(err).Error("File does not exist \"" + input + "\"")
 		return
 	}
 
@@ -144,6 +144,13 @@ func process(sub QueuedSub) {
 			return
 		}
 	}(subFile)
+
+	if configuration.Cfg.FilePermissions.Gid != 0 || configuration.Cfg.FilePermissions.Uid != 0 {
+		err = os.Chown(subFilePath, configuration.Cfg.FilePermissions.Uid, configuration.Cfg.FilePermissions.Gid)
+		if err != nil {
+			log.WithError(err).Errorln("failed to change file ownership")
+		}
+	}
 
 	start = time.Now()
 

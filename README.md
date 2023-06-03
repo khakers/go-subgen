@@ -34,6 +34,7 @@ audio in memory instead of saving it to the filesystem. If you have large media 
 #### Pre-built image
 
 If you encounter illegal instruction errors when the model attempts to run, you may need to build the image locally. See [Locally built image](#locally-built-image)
+The image currently requires your CPU support avx2, avx, and sse3.
 
 ```yaml
 version: "3.8"
