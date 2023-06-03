@@ -208,8 +208,8 @@ type SubtitleTemplateData struct {
 | WHISPER_CONF_TOKEN_SUM_THRESHOLD    | float32   |                                                |                                                                                                              |
 | WHISPER_CONF_MAX_SEGMENT_LENGTH     | uint      |                                                |                                                                                                              |
 | WHISPER_CONF_MAX_TOKENS_PER_SEGMENT | uint      |                                                |                                                                                                              |
-| FILE_PERMISSIONS_GID                | uint      |                                                |                                                                                                              |
-| FILE_PERMISSIONS_GID                | uint      |                                                |                                                                                                              |
+| FILE_PERMISSIONS_UID                | uint      | 0                                              | UID of the saved subtitle file                                                                               |
+| FILE_PERMISSIONS_GID                | uint      | 0                                              | GID of the saved subtitle file                                                                               |
 
 ## Acknowledgements
 
