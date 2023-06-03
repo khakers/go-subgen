@@ -39,7 +39,7 @@ If you encounter illegal instruction errors when the model attempts to run, you 
 version: "3.8"
 services:
   subgen:
-    image: ghcr.io/khakers/go-subgen:master
+    image: ghcr.io/khakers/go-subgen:latest
     restart: unless-stopped
     ports:
       - "8095:8095"
@@ -66,7 +66,7 @@ version: "3.8"
 services:
   subgen:
     build:
-      context: https://github.com/khakers/go-subgen.git
+      context: https://github.com/khakers/go-subgen.git#v0.1.0
     restart: unless-stopped
     ports:
       - "8095:8095"
