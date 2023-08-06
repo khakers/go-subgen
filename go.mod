@@ -8,7 +8,7 @@ require (
 	github.com/go-audio/wav v1.1.0
 	github.com/kalafut/imohash v1.0.2
 	github.com/nightlyone/lockfile v1.0.0
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.3
 	github.com/u2takey/ffmpeg-go v0.4.1
 )
 
