@@ -2,11 +2,11 @@
 
 Automatic subtitle generation for your media using [whisper.cpp](https://github.com/ggerganov/whisper.cpp).
 
-Runs a webserver that upon receiving a webhook with a file path will use whisper.cpp to generate subtitles for your media and output them as an .srt
-file.
+Runs a webserver that upon receiving a webhook with a file path will use whisper.cpp to generate subtitles for your media and output them as srt
+files. Supports webhooks from Radarr & Sonarr.
 
-Whisper.cpp is CPU and RAM intensive depending on the model you use, and go-subgen stores the stripped
-audio in memory instead of saving it to the filesystem. If you have large media files you will need lots of ram.
+Whisper.cpp is resource intensive, and go-subgen stores the stripped
+audio in memory instead of saving it to the filesystem. If you have large media files and/or use large models you will need lots of ram.
 
 ## Features
 
@@ -17,15 +17,16 @@ audio in memory instead of saving it to the filesystem. If you have large media 
 
 ## Todo/Future
 
+Create an issue or Discussion if you have other feature requests or comments.
+
 * file permissions and user handling
 * Further software integrations
 * Persistent Queue
 * Translation and more advanced media checking (don't run if file already has subs, for example)
 * A basic web ui to queue transcription and view queued/in progress tasks.
-* Support for different models of whisper? (faster-whisper, openai whisper)
 * Filesystem watching support
 * Integration into Bazarr as a provider (Not sure how to go about this, please open an issue if you have any ideas)
-* CLBLAST & CUBLAS support for GPU acceleration
+* CLBLAST & CUBLAS support for GPU acceleration (CUBLAS support is available in the CUBLAS branch)
 
 ## Docker
 
@@ -213,4 +214,4 @@ type SubtitleTemplateData struct {
 
 ## Acknowledgements
 
-Inspired by [McCloudS/subgen](https://github.com/McCloudS/subgen) but written in Go and for more generic usage.
+Inspired by [McCloudS/subgen](https://github.com/McCloudS/subgen) but written in Go and for more service agnostic (not designed around plex) usage.
