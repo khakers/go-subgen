@@ -99,7 +99,7 @@ POST
 
 `/webhooks/tautulli`
 
-Which is designed around being compatible with subgens Tautulli webhook and accepts the same json payload
+Designed around being compatible with subgens Tautulli webhook and accepts the same json payload
 
 However, go-subgen currently only uses 'file' and ignores the rest of the json data.
 
