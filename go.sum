@@ -1,8 +1,8 @@
 github.com/aws/aws-sdk-go v1.38.20/go.mod h1:hcU610XS61/+aQV88ixoOzUoG7v3b31pl2zKMmprdro=
 github.com/aws/aws-sdk-go v1.44.214 h1:YzDuC+9UtrAOUkItlK7l3BvKI9o6qAog9X8i289HORc=
 github.com/aws/aws-sdk-go v1.44.214/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
-github.com/cristalhq/aconfig v0.18.4 h1:Z0I0NN8LTohitqrkv/C54sQD4SIeXdTCJwFIXhdVA2A=
-github.com/cristalhq/aconfig v0.18.4/go.mod h1:NXaRp+1e6bkO4dJn+wZ71xyaihMDYPtCSvEhMTm/H3E=
+github.com/cristalhq/aconfig v0.18.5 h1:QqXH/Gy2c4QUQJTV2BN8UAuL/rqZ3IwhvxeC8OgzquA=
+github.com/cristalhq/aconfig v0.18.5/go.mod h1:NXaRp+1e6bkO4dJn+wZ71xyaihMDYPtCSvEhMTm/H3E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
