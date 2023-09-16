@@ -29,22 +29,16 @@ func StripAudioToFile(videoFile string, output string) error {
 
 func StripAudioToBuffer(videoFile string) (error, *[]byte) {
 	buffer := bytes.NewBuffer(nil)
-	err := ffmpeg.
-		Input(videoFile).
-		Output("pipe:",
-			ffmpeg.KwArgs{
-				"ar":  "16000",
-				"ac":  "1",
-				"c:a": "pcm_s16le",
-				"f":   "wav",
-			}).
-		WithOutput(buffer).
-		Run()
+
+	err := StripAudio(videoFile, buffer, nil)
+	if err != nil {
+		return err, nil
+	}
+
 	if err != nil {
 		return err, nil
 	}
 	log.Debugf("Read audio into buffer of size %v", len(buffer.Bytes()))
-	// var data []byte
 	all, err := io.ReadAll(buffer)
 	if err != nil {
 		return err, nil
@@ -67,7 +61,6 @@ func StripAudio(videoFile string, writer io.Writer, errOut io.Writer) error {
 		WithOutput(writer).
 		Run()
 	return err
-
 }
 
 func StripAudioRaw(videoFile string, writer io.Writer, errOut io.Writer) error {
@@ -75,10 +68,11 @@ func StripAudioRaw(videoFile string, writer io.Writer, errOut io.Writer) error {
 		Input(videoFile).
 		Output("pipe:",
 			ffmpeg.KwArgs{
-				"ar":  "16000",
-				"ac":  "1",
-				"c:a": "pcm_s16le",
-				"f":   "s16le",
+				"ar":       "16000",
+				"ac":       "1",
+				"c:a":      "pcm_s16le",
+				"f":        "s16le",
+				"loglevel": "error",
 			}).
 		WithErrorOutput(errOut).
 		WithOutput(writer).
