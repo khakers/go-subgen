@@ -8,7 +8,7 @@ import (
 	"github.com/ggerganov/whisper.cpp/bindings/go/pkg/whisper"
 	log "github.com/sirupsen/logrus"
 	"go-subgen/internal"
-	"go-subgen/pkg/configuration"
+	"go-subgen/internal/configuration"
 )
 
 func Generate(modelPath string, input []byte, subsWriter io.Writer) error {
@@ -20,7 +20,7 @@ func Generate(modelPath string, input []byte, subsWriter io.Writer) error {
 	}
 	defer model.Close()
 
-	err = Process(model, input, subsWriter)
+	err = Process(model, input, subsWriter, configuration.Cfg.WhisperConf)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func Generate(modelPath string, input []byte, subsWriter io.Writer) error {
 
 // Adapted from code at https://github.com/ggerganov/whisper.cpp/blob/2bee2650c66497b8804e3c82426373703c6d97a1/bindings/go/examples/go-whisper/process.go
 
-func Process(model whisper.Model, input []byte, subsWriter io.Writer) error {
+func Process(model whisper.Model, input []byte, subsWriter io.Writer, whisperConfig configuration.WhisperConfig) error {
 	context, err := model.NewContext()
 	if err != nil {
 		return err
@@ -41,24 +41,27 @@ func Process(model whisper.Model, input []byte, subsWriter io.Writer) error {
 
 	log.Debugf(context.SystemInfo())
 
-	if configuration.Cfg.WhisperConf.Threads != 0 {
-		context.SetThreads(configuration.Cfg.WhisperConf.Threads)
+	if whisperConfig.Threads != 0 {
+		context.SetThreads(whisperConfig.Threads)
 	}
-	if configuration.Cfg.WhisperConf.MaxSegmentLength != 0 {
-		context.SetMaxSegmentLength(configuration.Cfg.WhisperConf.MaxSegmentLength)
+	if whisperConfig.MaxSegmentLength != 0 {
+		context.SetMaxSegmentLength(whisperConfig.MaxSegmentLength)
 	}
-	if configuration.Cfg.WhisperConf.MaxTokensPerSegment != 0 {
-		context.SetMaxTokensPerSegment(configuration.Cfg.WhisperConf.MaxSegmentLength)
+	if whisperConfig.MaxTokensPerSegment != 0 {
+		context.SetMaxTokensPerSegment(whisperConfig.MaxSegmentLength)
 	}
-	if configuration.Cfg.WhisperConf.TokenSumThreshold != 0 {
-		context.SetTokenSumThreshold(configuration.Cfg.WhisperConf.TokenSumThreshold)
+	if whisperConfig.TokenSumThreshold != 0 {
+		context.SetTokenSumThreshold(whisperConfig.TokenSumThreshold)
 	}
-	if configuration.Cfg.WhisperConf.TokenThreshold != 0 {
-		context.SetTokenSumThreshold(configuration.Cfg.WhisperConf.TokenThreshold)
+	if whisperConfig.TokenThreshold != 0 {
+		context.SetTokenSumThreshold(whisperConfig.TokenThreshold)
 	}
 
-	context.SetLanguage(configuration.Cfg.TargetLang)
-	context.SetSpeedup(configuration.Cfg.WhisperConf.WhisperSpeedup)
+	err = context.SetLanguage(whisperConfig.TargetLang)
+	if err != nil {
+		return err
+	}
+	context.SetSpeedup(whisperConfig.WhisperSpeedup)
 
 	data := internal.ConvertPCMBytes(input)
 
@@ -72,10 +75,10 @@ func Process(model whisper.Model, input []byte, subsWriter io.Writer) error {
 	}
 
 	context.PrintTimings()
-	return OutputSRT(subsWriter, context)
+	return outputSRT(subsWriter, context)
 }
 
-func OutputSRT(writer io.Writer, context whisper.Context) (err error) {
+func outputSRT(writer io.Writer, context whisper.Context) (err error) {
 	n := 1
 	for {
 		segment, err := context.NextSegment()

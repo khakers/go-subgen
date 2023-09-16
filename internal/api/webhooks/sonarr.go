@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
-	"go-subgen/pkg"
+	"go-subgen/internal"
 )
 
 type WebhookSeries struct {
@@ -93,7 +93,7 @@ func ServeSonarr(w http.ResponseWriter, r *http.Request) {
 	path := filepath.Join(data.Series.Path, data.EpisodeFile.RelativePath)
 
 	log.WithField("data", fmt.Sprintf("%+v", data)).Debugln("Decoded Sonarr webhook json data")
-	pkg.EnqueueSub(path)
+	internal.EnqueueSub(path)
 	log.Debugf("Queued %v from sonarr", path)
 	w.WriteHeader(200)
 }

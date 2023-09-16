@@ -1,4 +1,4 @@
-package webhooks
+package api
 
 import (
 	"encoding/json"
@@ -6,8 +6,7 @@ import (
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
-
-	"go-subgen/pkg"
+	"go-subgen/internal"
 )
 
 type GenericWebhookData struct {
@@ -29,7 +28,7 @@ func ServeGeneric(w http.ResponseWriter, r *http.Request) {
 
 	for _, file := range data.Files {
 		log.Debugf("Queued %v from radarr", file)
-		pkg.EnqueueSub(file)
+		internal.EnqueueSub(file)
 	}
 	w.WriteHeader(200)
 }

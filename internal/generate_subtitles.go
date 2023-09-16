@@ -1,9 +1,8 @@
-package pkg
+package internal
 
 import (
 	"bytes"
 	"encoding/hex"
-	"io"
 	"os"
 	"path/filepath"
 	"time"
@@ -11,8 +10,8 @@ import (
 	"github.com/kalafut/imohash"
 	"github.com/nightlyone/lockfile"
 	log "github.com/sirupsen/logrus"
-	"go-subgen/internal"
-	"go-subgen/pkg/configuration"
+	"go-subgen/internal/configuration"
+	"go-subgen/pkg"
 )
 
 type QueuedSub struct {
@@ -108,20 +107,27 @@ func process(sub QueuedSub) {
 
 	start := time.Now()
 
-	err = StripAudioRaw(sub.filepath, buffer, io.Discard)
+	logger := log.New()
+	logwriter := logger.WriterLevel(log.InfoLevel)
+
+	err = pkg.StripAudioRaw(sub.filepath, buffer, logwriter)
 	if err != nil {
 		log.WithError(err).Errorln("Stripping audio failed")
+		return
+	}
+	err = logwriter.Close()
+	if err != nil {
 		return
 	}
 	audioStripDuration := time.Since(start)
 
 	log.Printf("completed audio stripping in %v seconds.", audioStripDuration.Seconds())
 
-	err, subFileName := configuration.Cfg.GetSubtitleFileName(internal.SubtitleTemplateData{
+	err, subFileName := configuration.Cfg.GetSubtitleFileName(SubtitleTemplateData{
 		FilePath:  sub.filepath,
 		FileType:  "srt",
-		FileName:  internal.GetFileName(sub.filepath),
-		Lang:      configuration.Cfg.TargetLang,
+		FileName:  GetFileName(sub.filepath),
+		Lang:      configuration.Cfg.WhisperConf.TargetLang,
 		FileHash:  hashString,
 		ModelType: string(configuration.Cfg.ModelType),
 	})
@@ -154,7 +160,7 @@ func process(sub QueuedSub) {
 
 	start = time.Now()
 
-	err = Generate(configuration.Cfg.GetModelPathFromConfig(), buffer.Bytes(), subFile)
+	err = pkg.Generate(configuration.Cfg.GetModelPathFromConfig(), buffer.Bytes(), subFile)
 	if err != nil {
 		log.WithError(err).Errorln("Generating subtitles failed")
 		return

@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
-	"go-subgen/pkg/configuration"
+	"go-subgen/internal/configuration"
 )
 
 const modelSrc = "https://huggingface.co/ggerganov/whisper.cpp/"
