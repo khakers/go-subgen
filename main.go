@@ -9,7 +9,7 @@ import (
 	"go-subgen/internal/api"
 	"go-subgen/internal/api/webhooks"
 	"go-subgen/internal/configuration"
-	"go-subgen/pkg"
+	"go-subgen/pkg/model"
 )
 
 func main() {
@@ -22,12 +22,19 @@ func main() {
 	log.Printf("using model type %v for language %s", conf.ModelType, conf.WhisperConf.TargetLang)
 
 	log.Debugf("%+v", configuration.Cfg)
-	downloaded, err := pkg.IsModelPresent(conf.ModelType, true)
+	downloaded, err := model.IsModelPresent(conf.ModelType, conf.ModelDir)
 	if err != nil {
-		log.WithError(err).Errorln("Model check failed (this is likely normal and can be ignored)")
+		log.WithError(err).Errorln("Model check failed")
+	}
+	if downloaded {
+		hash, err := model.VerifyModelHash(conf.ModelType, conf.ModelDir)
+		if err != nil {
+			log.WithError(err).Errorln("Model hash verification failed")
+		}
+		downloaded = hash
 	}
 	if !downloaded {
-		err := pkg.DownloadModel(conf.ModelType, true)
+		err := model.DownloadModel(conf.ModelType, conf.ModelDir, conf.VerifyModelHash)
 		if err != nil {
 			log.WithError(err).Fatalln("failed to download model")
 		}

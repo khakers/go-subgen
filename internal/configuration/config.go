@@ -6,12 +6,11 @@ import (
 
 	"github.com/cristalhq/aconfig"
 	log "github.com/sirupsen/logrus"
-	"go-subgen/internal"
-	"go-subgen/pkg"
+	"go-subgen/pkg/model"
 )
 
 type Config struct {
-	ModelType            pkg.Model     `default:"base_en" json:"model_type,omitempty"`
+	ModelType            model.Model   `default:"base_en" json:"model_type,omitempty"`
 	IgnoreIfExisting     bool          `default:"true" json:"ignore_if_existing,omitempty"`
 	WhisperConf          WhisperConfig `json:"whisper_conf"`
 	MaxConcurrency       uint          `json:"max_concurrency,omitempty" default:"1"`
@@ -64,15 +63,11 @@ func LoadConfig() (Config, error) {
 	return Cfg, nil
 }
 
-func (cfg Config) GetModelPathFromConfig() string {
-	return GetModelPathFromConfig(cfg, cfg.ModelType)
-}
+// func (cfg Config) GetModelPathFromConfig() string {
+// 	return GetModelPathFromConfig(cfg, cfg.ModelType)
+// }
 
-func GetModelPathFromConfig(config Config, model pkg.Model) string {
-	return pkg.GetModelPath(config.ModelDir, model)
-}
-
-func (cfg Config) GetSubtitleFileName(data internal.SubtitleTemplateData) (err error, str string) {
+func (cfg Config) GetSubtitleFileName(data SubtitleTemplateData) (err error, str string) {
 	buf := new(bytes.Buffer)
 	err = SubFileTemplate.Execute(buf, data)
 	return err, buf.String()

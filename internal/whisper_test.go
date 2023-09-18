@@ -1,4 +1,4 @@
-package pkg
+package internal
 
 // func TestGenerate(t *testing.T) {
 // 	type args struct {

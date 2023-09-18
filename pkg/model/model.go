@@ -1,4 +1,4 @@
-package pkg
+package model
 
 //go:generate go-enum -type=Model -all=false -string=true -new=true -string=true -text=true -json=true -yaml=false
 

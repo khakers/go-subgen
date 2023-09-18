@@ -12,6 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"go-subgen/internal/configuration"
 	"go-subgen/pkg"
+	"go-subgen/pkg/model"
 )
 
 type QueuedSub struct {
@@ -73,6 +74,8 @@ func StartWorkers(config configuration.Config) {
 
 func process(sub QueuedSub) {
 
+	conf := configuration.Cfg
+
 	log.Infof("Processing job for file %v", sub.filepath)
 
 	filehash, err := GetFileHash(sub.filepath)
@@ -123,13 +126,13 @@ func process(sub QueuedSub) {
 
 	log.Printf("completed audio stripping in %v seconds.", audioStripDuration.Seconds())
 
-	err, subFileName := configuration.Cfg.GetSubtitleFileName(SubtitleTemplateData{
+	err, subFileName := conf.GetSubtitleFileName(configuration.SubtitleTemplateData{
 		FilePath:  sub.filepath,
 		FileType:  "srt",
 		FileName:  GetFileName(sub.filepath),
-		Lang:      configuration.Cfg.WhisperConf.TargetLang,
+		Lang:      conf.WhisperConf.TargetLang,
 		FileHash:  hashString,
-		ModelType: string(configuration.Cfg.ModelType),
+		ModelType: string(conf.ModelType),
 	})
 	if err != nil {
 		log.WithError(err).Errorln("failed to template subtitle file name")
@@ -151,8 +154,8 @@ func process(sub QueuedSub) {
 		}
 	}(subFile)
 
-	if configuration.Cfg.FilePermissions.Gid != 0 || configuration.Cfg.FilePermissions.Uid != 0 {
-		err = os.Chown(subFilePath, configuration.Cfg.FilePermissions.Uid, configuration.Cfg.FilePermissions.Gid)
+	if conf.FilePermissions.Gid != 0 || conf.FilePermissions.Uid != 0 {
+		err = os.Chown(subFilePath, conf.FilePermissions.Uid, conf.FilePermissions.Gid)
 		if err != nil {
 			log.WithError(err).Errorln("failed to change file ownership")
 		}
@@ -160,7 +163,7 @@ func process(sub QueuedSub) {
 
 	start = time.Now()
 
-	err = pkg.Generate(configuration.Cfg.GetModelPathFromConfig(), buffer.Bytes(), subFile)
+	err = Generate(model.GetModelPath(conf.ModelDir, conf.ModelType), buffer.Bytes(), subFile)
 	if err != nil {
 		log.WithError(err).Errorln("Generating subtitles failed")
 		return

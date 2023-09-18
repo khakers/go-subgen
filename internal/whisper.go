@@ -1,4 +1,4 @@
-package pkg
+package internal
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 
 	"github.com/ggerganov/whisper.cpp/bindings/go/pkg/whisper"
 	log "github.com/sirupsen/logrus"
-	"go-subgen/internal"
 	"go-subgen/internal/configuration"
 )
 
@@ -63,7 +62,7 @@ func Process(model whisper.Model, input []byte, subsWriter io.Writer, whisperCon
 	}
 	context.SetSpeedup(whisperConfig.WhisperSpeedup)
 
-	data := internal.ConvertPCMBytes(input)
+	data := ConvertPCMBytes(input)
 
 	var segmentCallback whisper.SegmentCallback
 

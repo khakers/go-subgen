@@ -1,4 +1,4 @@
-package internal
+package configuration
 
 // SubtitleTemplateData Data structure used for sub filename templating
 type SubtitleTemplateData struct {
