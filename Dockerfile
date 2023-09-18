@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.5-labs
 
-FROM golang:1.19-bullseye as Build
+FROM golang:1.21-bullseye as Build
 
 
 RUN apt install make g++
