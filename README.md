@@ -19,14 +19,15 @@ audio in memory instead of saving it to the filesystem. If you have large media 
 
 Create an issue or Discussion if you have other feature requests or comments.
 
-* file permissions and user handling
 * Further software integrations
 * Persistent Queue
 * Translation and more advanced media checking (don't run if file already has subs, for example)
 * A basic web ui to queue transcription and view queued/in progress tasks.
 * Filesystem watching support
 * Integration into Bazarr as a provider (Not sure how to go about this, please open an issue if you have any ideas)
-* CLBLAST & CUBLAS support for GPU acceleration (CUBLAS support is available in the CUBLAS branch)
+* CLBLAST & CUBLAS support for GPU acceleration khakers/go-subgen#39
+* Track ggerganov/whisper.cpp#1261
+* Track ggerganov/whisper.cpp#1060
 
 ## Docker
 
@@ -35,7 +36,7 @@ Create an issue or Discussion if you have other feature requests or comments.
 #### Pre-built image
 
 If you encounter illegal instruction errors when the model attempts to run, you may need to build the image locally. See [Locally built image](#locally-built-image)
-The image currently requires your CPU support avx2, avx, and sse3.
+The image currently requires your CPU support avx2, avx, and sse3. 
 
 ```yaml
 version: "3.8"
