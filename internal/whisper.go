@@ -7,6 +7,7 @@ import (
 
 	"github.com/ggerganov/whisper.cpp/bindings/go/pkg/whisper"
 	log "github.com/sirupsen/logrus"
+	"go-subgen/internal/audio"
 	"go-subgen/internal/configuration"
 )
 
@@ -25,10 +26,6 @@ func Generate(modelPath string, input []byte, subsWriter io.Writer) error {
 	}
 	return nil
 }
-
-// func GenerateWithModel(model Model, reader io.Reader, subsWriter *io.Writer) error {
-// 	return nil
-// }
 
 // Adapted from code at https://github.com/ggerganov/whisper.cpp/blob/2bee2650c66497b8804e3c82426373703c6d97a1/bindings/go/examples/go-whisper/process.go
 
@@ -62,7 +59,7 @@ func Process(model whisper.Model, input []byte, subsWriter io.Writer, whisperCon
 	}
 	context.SetSpeedup(whisperConfig.WhisperSpeedup)
 
-	data := ConvertPCMBytes(input)
+	data := audio.ConvertPCMBytes(input)
 
 	var segmentCallback whisper.SegmentCallback
 
