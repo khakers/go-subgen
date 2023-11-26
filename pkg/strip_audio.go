@@ -63,6 +63,7 @@ func StripAudio(videoFile string, writer io.Writer, errOut io.Writer) error {
 	return err
 }
 
+// StripAudioRaw strips the audio from a video file and writes it as raw PCM signed 16-bit little-endian audio to supplied writer
 func StripAudioRaw(videoFile string, writer io.Writer, errOut io.Writer) error {
 	err := ffmpeg.
 		Input(videoFile).
