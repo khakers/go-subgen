@@ -5,15 +5,29 @@ import (
 	"fmt"
 	"net/http"
 
+	"go-subgen/internal/asr_job"
+
 	log "github.com/sirupsen/logrus"
-	"go-subgen/internal"
 )
 
 type GenericWebhookData struct {
 	Files []string `json:"files"`
 }
 
-func ServeGeneric(w http.ResponseWriter, r *http.Request) {
+type GenericFileHandler interface {
+	Serve(w http.ResponseWriter, r *http.Request)
+}
+type genericFileHandler struct {
+	QueueRepository asr_job.AsrJobQueueRepository
+}
+
+func NewGenericFileHandler(repository asr_job.AsrJobQueueRepository) GenericFileHandler {
+	return &genericFileHandler{
+		QueueRepository: repository,
+	}
+}
+
+func (h genericFileHandler) Serve(w http.ResponseWriter, r *http.Request) {
 	log.Debugln("Received generic webhook")
 
 	var data GenericWebhookData
@@ -28,7 +42,16 @@ func ServeGeneric(w http.ResponseWriter, r *http.Request) {
 
 	for _, file := range data.Files {
 		log.Debugf("Queued %v from radarr", file)
-		internal.EnqueueSub(file)
+		err := h.QueueRepository.EnqueueJob(
+			r.Context(),
+			asr_job.FileAsrJob{
+				FilePath: file,
+				Lang:     "en",
+			},
+		)
+		if err != nil {
+			return
+		}
 	}
 	w.WriteHeader(200)
 }

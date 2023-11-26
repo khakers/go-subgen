@@ -1,6 +1,7 @@
 package main
 
 import (
+	jobqueue "go-subgen/internal/adapters"
 	"net/http"
 	"strconv"
 
@@ -49,7 +50,11 @@ func main() {
 		}
 	}))
 
-	http.Handle("/webhooks/generic", http.HandlerFunc(api.ServeGeneric))
+	asrQueue := jobqueue.NewMemoryQueueRepository()
+
+	handler := api.NewGenericFileHandler(asrQueue)
+
+	http.Handle("/webhooks/generic", http.HandlerFunc(handler.Serve))
 	http.Handle("/webhooks/tautulli", http.HandlerFunc(webhooks.ServeTautulli))
 	http.Handle("/webhooks/radarr", http.HandlerFunc(webhooks.ServeRadarr))
 	http.Handle("/webhooks/sonarr", http.HandlerFunc(webhooks.ServeSonarr))
