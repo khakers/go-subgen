@@ -63,15 +63,21 @@ func Process(model whisper.Model, input []byte, subsWriter io.Writer, whisperCon
 
 	var segmentCallback whisper.SegmentCallback
 
+	// var progressCallback whisper.ProgressCallback
+
 	context.ResetTimings()
 
-	err = context.Process(data, segmentCallback)
+	err = context.Process(data, segmentCallback, progressCallback)
 	if err != nil {
 		return err
 	}
 
 	context.PrintTimings()
 	return outputSRT(subsWriter, context)
+}
+
+func progressCallback(int int) {
+	log.Debugf("progress callback %v", int)
 }
 
 func outputSRT(writer io.Writer, context whisper.Context) (err error) {

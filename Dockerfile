@@ -7,7 +7,7 @@ RUN apt install make g++
 
 # bump: whisper.cpp /whisper.cpp\.git#v([\d.]+)/ https://github.com/ggerganov/whisper.cpp.git|^1
 # bump: whisper.cpp link "Release notes" https://github.com/ggerganov/whisper.cpp/releases/tag/v$LATEST
-ADD https://github.com/ggerganov/whisper.cpp.git#v1.4.2 /whisper
+ADD https://github.com/ggerganov/whisper.cpp.git#v1.5.1 /whisper
 WORKDIR /whisper
 
 RUN make libwhisper.a
@@ -41,9 +41,9 @@ RUN mkdir "/models" && mkdir /subgen
 WORKDIR /subgen
 
 # bump: static-ffmpeg /static-ffmpeg:([\d.]+)/ docker:mwader/static-ffmpeg|^6
-COPY --from=mwader/static-ffmpeg:6.0 /ffmpeg /usr/local/bin/
-#COPY --from=mwader/static-ffmpeg:6.0 /ffprobe /usr/local/bin/
-COPY --from=mwader/static-ffmpeg:6.0 /versions.json /subgen
+COPY --from=mwader/static-ffmpeg:6.1 /ffmpeg /usr/local/bin/
+#COPY --from=mwader/static-ffmpeg:6.1 /ffprobe /usr/local/bin/
+COPY --from=mwader/static-ffmpeg:6.1 /versions.json /subgen
 
 COPY --from=Build /app/main /subgen
 

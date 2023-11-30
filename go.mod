@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/cristalhq/aconfig v0.18.5
-	github.com/ggerganov/whisper.cpp/bindings/go v0.0.0-20230509153812-1d17cd5bb37a
+	github.com/ggerganov/whisper.cpp/bindings/go v0.0.0-20231124104155-9d6ebd877ce7
 	github.com/go-audio/wav v1.1.0
 	github.com/kalafut/imohash v1.0.2
 	github.com/nightlyone/lockfile v1.0.0
