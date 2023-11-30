@@ -41,7 +41,7 @@ func (h genericFileHandler) Serve(w http.ResponseWriter, r *http.Request) {
 	log.WithField("data", fmt.Sprintf("%+v", data)).Debugln("Decoded webhook json data")
 
 	for _, file := range data.Files {
-		log.Debugf("Queued %v from radarr", file)
+		log.Debugf("Queued %v (API)", file)
 		err := h.QueueRepository.EnqueueJob(
 			r.Context(),
 			asr_job.FileAsrJob{
