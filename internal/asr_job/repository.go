@@ -1,12 +1,16 @@
 package asr_job
 
-import "context"
+import (
+	"context"
+)
 
-// AsrJobQueueRepository is the interface for the job queue
-type AsrJobQueueRepository interface {
-	EnqueueJob(ctx context.Context, job FileAsrJob) error
-	DequeueJob(ctx context.Context) (FileAsrJob, error)
-	PeekJob() (FileAsrJob, error)
+// AsrJobRepository is the interface for the job store
+type AsrJobRepository interface {
+	AddJob(ctx context.Context, job FileAsrJob) error
+	AddJobs(ctx context.Context, jobs []FileAsrJob)
+	RemoveJob(ctx context.Context, JobId uint) (FileAsrJob, error)
+	GetJob(ctx context.Context, JobId uint) (FileAsrJob, error)
+	GetNextJob() (FileAsrJob, error)
 	JobCount() (int, error)
-	PeekJobs() ([]FileAsrJob, error)
+	GetAllJobs() ([]FileAsrJob, error)
 }

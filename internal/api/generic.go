@@ -18,10 +18,10 @@ type GenericFileHandler interface {
 	Serve(w http.ResponseWriter, r *http.Request)
 }
 type genericFileHandler struct {
-	QueueRepository asr_job.AsrJobQueueRepository
+	QueueRepository asr_job.AsrJobRepository
 }
 
-func NewGenericFileHandler(repository asr_job.AsrJobQueueRepository) GenericFileHandler {
+func NewGenericFileHandler(repository asr_job.AsrJobRepository) GenericFileHandler {
 	return &genericFileHandler{
 		QueueRepository: repository,
 	}
@@ -42,7 +42,7 @@ func (h genericFileHandler) Serve(w http.ResponseWriter, r *http.Request) {
 
 	for _, file := range data.Files {
 		log.Debugf("Queued %v (API)", file)
-		err := h.QueueRepository.EnqueueJob(
+		err := h.QueueRepository.AddJob(
 			r.Context(),
 			asr_job.FileAsrJob{
 				FilePath: file,

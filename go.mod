@@ -14,6 +14,7 @@ require (
 
 require (
 	github.com/aws/aws-sdk-go v1.44.214 // indirect
+	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/go-audio/audio v1.0.0 // indirect
 	github.com/go-audio/riff v1.0.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect

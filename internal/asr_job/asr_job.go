@@ -1,11 +1,15 @@
 package asr_job
 
-import "time"
+import (
+	"time"
+)
 
 type FileAsrJob struct {
-	FilePath     string
-	Lang         string
-	CreationTime time.Time
-	Status       JobStatus
-	Progress     float32
+	ID        uint
+	FilePath  string
+	Lang      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Status    JobStatus
+	Progress  float32
 }
