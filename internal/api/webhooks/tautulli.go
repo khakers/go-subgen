@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
-	"go-subgen/internal"
 )
 
 type TautulliWebhookData struct {
@@ -25,6 +24,6 @@ func ServeTautulli(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "error: %v", err)
 		return
 	}
-	internal.EnqueueSub(data.File)
+	// internal.EnqueueSub(data.File)
 	w.WriteHeader(200)
 }

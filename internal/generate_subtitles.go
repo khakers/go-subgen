@@ -2,6 +2,7 @@ package internal
 
 import (
 	"bytes"
+	"context"
 	"encoding/hex"
 	"os"
 	"path/filepath"
@@ -10,35 +11,60 @@ import (
 	"github.com/kalafut/imohash"
 	"github.com/nightlyone/lockfile"
 	log "github.com/sirupsen/logrus"
+	"go-subgen/internal/asr_job"
 	"go-subgen/internal/configuration"
 	"go-subgen/pkg"
 	"go-subgen/pkg/model"
 )
 
 type QueuedSub struct {
-	filepath string
-	filehash [16]byte
+	filePath string
+	fileHash [16]byte
+	AsrJobID uint
 }
 
-func EnqueueSub(input string) {
-	input, err := filepath.Abs(input)
+type SubtitleGenerator struct {
+	jobChannel       chan QueuedSub
+	conf             configuration.Config
+	asrJobRepository asr_job.AsrJobRepository
+}
+
+func NewSubtitleGenerator(conf configuration.Config, asrJobRepository asr_job.AsrJobRepository) *SubtitleGenerator {
+	return &SubtitleGenerator{
+		// makes a channel of QueuedSubs with a capacity of 100.
+		jobChannel:       make(chan QueuedSub, 100),
+		conf:             conf,
+		asrJobRepository: asrJobRepository,
+	}
+}
+
+// todo handle cancellation
+
+func (s SubtitleGenerator) EnqueueSub(job asr_job.FileAsrJob) {
+	input, err := filepath.Abs(job.FilePath)
 	log.Printf("Queueing file %v", input)
 
 	// Check to make sure the file exists
 	if _, err := os.Stat(input); os.IsNotExist(err) {
 		log.WithError(err).Error("File does not exist \"" + input + "\"")
+		err := s.asrJobRepository.SetJobStatus(context.TODO(), job.ID, asr_job.Failed)
+		if err != nil {
+			return
+		}
 		return
 	}
 
 	filehash, err := GetFileHash(input)
 	if err != nil {
 		log.WithError(err).Errorln("failed to generate file hash")
+		s.asrJobRepository.SetJobStatus(context.TODO(), job.ID, asr_job.Failed)
 		return
 	}
 
-	jobChannel <- QueuedSub{
-		filepath: input,
-		filehash: filehash,
+	s.jobChannel <- QueuedSub{
+		filePath: input,
+		fileHash: filehash,
+		AsrJobID: job.ID,
 	}
 	log.Println("Job Queued")
 
@@ -54,57 +80,68 @@ func GetFileHash(filePath string) (hash [16]byte, err error) {
 	return hash, nil
 }
 
-func queueWorker(jobChan <-chan QueuedSub) {
+func (s SubtitleGenerator) queueWorker(jobChan <-chan QueuedSub) {
 	for job := range jobChan {
-		process(job)
+		s.process(job, s.conf)
 	}
 }
 
-var jobChannel chan QueuedSub
-
-func StartWorkers(config configuration.Config) {
-	// makes a channel of QueuedSubs with a capacity of 100.
-	jobChannel = make(chan QueuedSub, 100)
-
-	// start the worker
-	for i := uint(0); i < config.MaxConcurrency; i++ {
-		go queueWorker(jobChannel)
+// todo do we really need 2 channels for this?
+func (s SubtitleGenerator) newJobWorker(newJobChannel <-chan uint) {
+	for jobID := range newJobChannel {
+		job, err := s.asrJobRepository.GetJob(context.TODO(), jobID)
+		if err != nil {
+			log.WithError(err).Errorln("failed to retrieve job when attempting to enqueue it to the subtitle generator")
+		}
+		s.EnqueueSub(job)
 	}
 }
 
-func process(sub QueuedSub) {
+func (s SubtitleGenerator) StartWorkers() {
+	// start the workers
+	go s.newJobWorker(s.asrJobRepository.GetNewJobChannel())
+	for i := uint(0); i < s.conf.MaxConcurrency; i++ {
+		go s.queueWorker(s.jobChannel)
+	}
+}
 
-	conf := configuration.Cfg
+func (s SubtitleGenerator) process(sub QueuedSub, conf configuration.Config) {
+	// todo we would want to update the job to in progress
 
-	log.Infof("Processing job for file %v", sub.filepath)
+	log.Infof("Processing job for file %v, job id %v", sub.filePath, sub.AsrJobID)
 
-	filehash, err := GetFileHash(sub.filepath)
+	filehash, err := GetFileHash(sub.filePath)
 	if err != nil {
 		log.WithError(err).Println("failed to generate file hash")
+		s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.Failed)
 		return
 	}
 
-	if filehash != sub.filehash {
-		log.Warnf("The hash for file \"%v\" has changed since it was queued", sub.filepath)
+	if filehash != sub.fileHash {
+		log.Warnf("The hash for file \"%v\" has changed since it was queued", sub.filePath)
 	}
 
 	// We always want to use the most recent hash of the file
 	hashString := hex.EncodeToString(filehash[:])
 
-	lock, err := lockfile.New(filepath.Join(filepath.Dir(sub.filepath), hashString+".lock"))
+	// todo refactor locking
+	lock, err := lockfile.New(filepath.Join(filepath.Dir(sub.filePath), hashString+".lock"))
 	if err != nil {
 		log.WithError(err).Errorln("failed to acquire file lock")
+		s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.Failed)
 		return
 	}
-
-	log.Debugf("Locking file with hash %v at %v", hashString, filepath.Join(filepath.Dir(sub.filepath), hashString+".lock"))
+	log.Debugf("Locking file with hash %v at %v", hashString, filepath.Join(filepath.Dir(sub.filePath), hashString+".lock"))
 
 	err = lock.TryLock()
 	if err != nil {
 		log.WithError(err).Errorln(err)
+		s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.Failed)
 		return
 	}
 	defer lock.Unlock()
+
+	s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.InProgress)
 
 	buffer := new(bytes.Buffer)
 
@@ -113,9 +150,10 @@ func process(sub QueuedSub) {
 	logger := log.New()
 	logwriter := logger.WriterLevel(log.InfoLevel)
 
-	err = pkg.StripAudioRaw(sub.filepath, buffer, logwriter)
+	err = pkg.StripAudioRaw(sub.filePath, buffer, logwriter)
 	if err != nil {
 		log.WithError(err).Errorln("Stripping audio failed")
+		s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.Failed)
 		return
 	}
 	err = logwriter.Close()
@@ -127,18 +165,20 @@ func process(sub QueuedSub) {
 	log.Printf("completed audio stripping in %v seconds.", audioStripDuration.Seconds())
 
 	err, subFileName := conf.GetSubtitleFileName(configuration.SubtitleTemplateData{
-		FilePath:  sub.filepath,
+		FilePath:  sub.filePath,
 		FileType:  "srt",
-		FileName:  GetFileName(sub.filepath),
+		FileName:  GetFileName(sub.filePath),
 		Lang:      conf.WhisperConf.TargetLang,
 		FileHash:  hashString,
 		ModelType: string(conf.ModelType),
 	})
 	if err != nil {
 		log.WithError(err).Errorln("failed to template subtitle file name")
+		s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.Failed)
+		return
 	}
 
-	subFilePath := filepath.Join(filepath.Dir(sub.filepath), subFileName)
+	subFilePath := filepath.Join(filepath.Dir(sub.filePath), subFileName)
 
 	log.Printf("created srt file %v", subFilePath)
 
@@ -150,6 +190,7 @@ func process(sub QueuedSub) {
 		err := subFile.Close()
 		if err != nil {
 			log.WithError(err).Errorln("failed to close file")
+			s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.Failed)
 			return
 		}
 	}(subFile)
@@ -163,13 +204,31 @@ func process(sub QueuedSub) {
 
 	start = time.Now()
 
-	err = Generate(model.GetModelPath(conf.ModelDir, conf.ModelType), buffer.Bytes(), subFile)
+	progressChannel := make(chan float32, 2)
+
+	go progressChannelWorker(progressChannel, s.asrJobRepository, sub.AsrJobID)
+
+	err = Generate(model.GetModelPath(conf.ModelDir, conf.ModelType), buffer.Bytes(), subFile, progressChannel)
 	if err != nil {
 		log.WithError(err).Errorln("Generating subtitles failed")
+		s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.Failed)
 		return
 	}
 
 	subDuration := time.Since(start)
+	err = s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.Complete)
+	if err != nil {
+		log.WithError(err).Errorln("failed to set job status on job ", sub.AsrJobID)
+	}
 
-	log.Infof("finished generating subtitles for \"%v\" in %v seconds. Sub file saved to \"%v\"", sub.filepath, subDuration.Seconds(), subFilePath)
+	log.Infof("finished generating subtitles for \"%v\" in %v seconds. Sub file saved to \"%v\"", sub.filePath, subDuration.Seconds(), subFilePath)
+}
+
+func progressChannelWorker(a chan float32, repository asr_job.AsrJobRepository, id uint) {
+	for i := range a {
+		err := repository.SetJobProgress(context.TODO(), id, i)
+		if err != nil {
+			log.WithError(err).Errorf("failed to update job progress on job %v", id)
+		}
+	}
 }

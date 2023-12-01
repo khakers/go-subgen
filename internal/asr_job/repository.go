@@ -10,7 +10,11 @@ type AsrJobRepository interface {
 	AddJobs(ctx context.Context, jobs []FileAsrJob)
 	RemoveJob(ctx context.Context, JobId uint) (FileAsrJob, error)
 	GetJob(ctx context.Context, JobId uint) (FileAsrJob, error)
-	GetNextJob() (FileAsrJob, error)
-	JobCount() (int, error)
-	GetAllJobs() ([]FileAsrJob, error)
+	GetNextJob(ctx context.Context) (FileAsrJob, error)
+	JobCount(ctx context.Context) (int, error)
+	GetAllJobs(ctx context.Context) ([]FileAsrJob, error)
+	UpdateJob(ctx context.Context, JobId uint, job FileAsrJob) (FileAsrJob, error)
+	SetJobStatus(ctx context.Context, JobId uint, status JobStatus) error
+	SetJobProgress(ctx context.Context, jobId uint, progress float32) error
+	GetNewJobChannel() chan uint
 }

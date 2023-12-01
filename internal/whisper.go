@@ -11,7 +11,7 @@ import (
 	"go-subgen/internal/configuration"
 )
 
-func Generate(modelPath string, input []byte, subsWriter io.Writer) error {
+func Generate(modelPath string, input []byte, subsWriter io.Writer, progressChannel chan float32) error {
 
 	// Load the model
 	model, err := whisper.New(modelPath)
@@ -20,7 +20,7 @@ func Generate(modelPath string, input []byte, subsWriter io.Writer) error {
 	}
 	defer model.Close()
 
-	err = Process(model, input, subsWriter, configuration.Cfg.WhisperConf)
+	err = Process(model, input, subsWriter, configuration.Cfg.WhisperConf, progressChannel)
 	if err != nil {
 		return err
 	}
@@ -29,7 +29,7 @@ func Generate(modelPath string, input []byte, subsWriter io.Writer) error {
 
 // Adapted from code at https://github.com/ggerganov/whisper.cpp/blob/2bee2650c66497b8804e3c82426373703c6d97a1/bindings/go/examples/go-whisper/process.go
 
-func Process(model whisper.Model, input []byte, subsWriter io.Writer, whisperConfig configuration.WhisperConfig) error {
+func Process(model whisper.Model, input []byte, subsWriter io.Writer, whisperConfig configuration.WhisperConfig, progressChannel chan float32) error {
 	context, err := model.NewContext()
 	if err != nil {
 		return err
@@ -67,17 +67,17 @@ func Process(model whisper.Model, input []byte, subsWriter io.Writer, whisperCon
 
 	context.ResetTimings()
 
-	err = context.Process(data, segmentCallback, progressCallback)
+	err = context.Process(data, segmentCallback, func(i int) {
+		log.Tracef("progress callback %v", i)
+		progressChannel <- float32(i)
+	})
+
 	if err != nil {
 		return err
 	}
 
 	context.PrintTimings()
 	return outputSRT(subsWriter, context)
-}
-
-func progressCallback(int int) {
-	log.Debugf("progress callback %v", int)
 }
 
 func outputSRT(writer io.Writer, context whisper.Context) (err error) {

@@ -19,7 +19,6 @@ audio in memory instead of saving it to the filesystem. If you have large media 
 
 Create an issue or Discussion if you have other feature requests or comments.
 
-* file permissions and user handling
 * Further software integrations
 * Persistent Queue
 * Translation and more advanced media checking (don't run if file already has subs, for example)
@@ -27,6 +26,7 @@ Create an issue or Discussion if you have other feature requests or comments.
 * Filesystem watching support
 * Integration into Bazarr as a provider (Not sure how to go about this, please open an issue if you have any ideas)
 * CLBLAST & CUBLAS support for GPU acceleration (CUBLAS support is available in the CUBLAS branch)
+* Resumable progress
 
 ## Docker
 
@@ -163,6 +163,38 @@ This example only sends the notification on series that have the 'whisper' tag, 
 that need it.
 
 </details>
+
+### Sonarr
+
+GET
+
+`/api/v1/jobs`
+
+Returns all ASR jobs that have been added sent to the application.
+
+```json
+[
+  {
+    "ID": 1,
+    "FilePath": "/samples/testout.mkv",
+    "Lang": "en",
+    "CreatedAt": "2023-12-01T09:08:56.690195576Z",
+    "UpdatedAt": "2023-12-01T09:10:07.061727387Z",
+    "Status": 3,
+    "Progress": 99
+  },
+  {
+    "ID": 2,
+    "FilePath": "/samples/test2.mkv",
+    "Lang": "en",
+    "CreatedAt": "2023-12-01T09:09:31.989451875Z",
+    "UpdatedAt": "2023-12-01T20:21:53.603749399Z",
+    "Status": 1,
+    "Progress": 46
+  }
+]
+```
+
 
 ## Configuration
 

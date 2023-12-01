@@ -16,7 +16,7 @@ package internal
 // 			args: struct {
 // 				modelPath string
 // 				input     string
-// 			}{modelPath: filepath.Join(projectpath.Test, "ggml-base.bin"), input: filepath.Join(projectpath.TestSamples, "micro_machines_sample.wav")},
+// 			}{modelPath: filePath.Join(projectpath.Test, "ggml-base.bin"), input: filePath.Join(projectpath.TestSamples, "micro_machines_sample.wav")},
 // 			wantErr: false,
 // 		},
 // 	}
@@ -36,11 +36,11 @@ package internal
 // }
 
 // func TestGenerate(t *testing.T) {
-// 	microMachines, err := os.ReadFile(filepath.Join(projectpath.TestSamples, "micro_machines_sample.wav"))
+// 	microMachines, err := os.ReadFile(filePath.Join(projectpath.TestSamples, "micro_machines_sample.wav"))
 // 	if err != nil {
 // 		return
 // 	}
-// 	bush, err := os.ReadFile(filepath.Join(projectpath.TestSamples, "WBUSH_RADIO_SAMPLE.wav"))
+// 	bush, err := os.ReadFile(filePath.Join(projectpath.TestSamples, "WBUSH_RADIO_SAMPLE.wav"))
 // 	if err != nil {
 // 		return
 // 	}
@@ -58,7 +58,7 @@ package internal
 // 		{
 // 			name: "micro machines sample",
 // 			args: args{
-// 				modelPath: filepath.Join(projectpath.TestModels, "ggml-base.bin"),
+// 				modelPath: filePath.Join(projectpath.TestModels, "ggml-base.bin"),
 // 				input:     bytes.NewReader(microMachines),
 // 			},
 // 			wantSubsWriter: "",
@@ -67,7 +67,7 @@ package internal
 // 		{
 // 			name: "bush radio sample",
 // 			args: args{
-// 				modelPath: filepath.Join(projectpath.TestModels, "ggml-base.bin"),
+// 				modelPath: filePath.Join(projectpath.TestModels, "ggml-base.bin"),
 // 				input:     bytes.NewReader(bush),
 // 			},
 // 			wantSubsWriter: "",

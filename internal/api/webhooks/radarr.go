@@ -4,10 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
-	"go-subgen/internal"
 )
 
 type WebhookMovie struct {
@@ -88,10 +86,10 @@ func ServeRadarr(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
-	path := filepath.Join(data.Movie.FolderPath, data.MovieFile.RelativePath)
+	// path := filepath.Join(data.Movie.FolderPath, data.MovieFile.RelativePath)
 
 	log.WithField("data", fmt.Sprintf("%+v", data)).Debugln("Decoded Radarr webhook json data")
-	internal.EnqueueSub(path)
+	// internal.EnqueueSub(path)
 	log.Debugf("Queued %v from radarr", data.MovieFile.Path)
 	w.WriteHeader(200)
 }

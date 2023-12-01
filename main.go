@@ -1,9 +1,10 @@
 package main
 
 import (
-	jobqueue "go-subgen/internal/adapters"
 	"net/http"
 	"strconv"
+
+	jobqueue "go-subgen/internal/adapters"
 
 	log "github.com/sirupsen/logrus"
 	"go-subgen/internal"
@@ -50,19 +51,26 @@ func main() {
 		}
 	}))
 
-	asrQueue := jobqueue.NewMemoryQueueRepository()
+	asrQueue := jobqueue.NewArrayRepository()
 
 	handler := api.NewGenericFileHandler(asrQueue)
+
+	jobHandler := api.NewJobHandler(asrQueue)
+
+	subtitleGenerator := internal.NewSubtitleGenerator(conf, asrQueue)
 
 	http.Handle("/webhooks/generic", http.HandlerFunc(handler.Serve))
 	http.Handle("/webhooks/tautulli", http.HandlerFunc(webhooks.ServeTautulli))
 	http.Handle("/webhooks/radarr", http.HandlerFunc(webhooks.ServeRadarr))
 	http.Handle("/webhooks/sonarr", http.HandlerFunc(webhooks.ServeSonarr))
+	http.Handle("/api/v1/jobs", http.HandlerFunc(jobHandler.Serve))
 
-	internal.StartWorkers(conf)
+	subtitleGenerator.StartWorkers()
 	err = http.ListenAndServe(":"+strconv.Itoa(int(conf.ServerConfig.Port)), nil)
 	if err != nil {
 		log.WithError(err).Fatal("web server failure")
 	}
+
+	log.Printf("listening on %v", conf.ServerConfig.Port)
 
 }

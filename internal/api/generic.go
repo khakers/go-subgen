@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"go-subgen/internal/asr_job"
 
@@ -45,8 +46,9 @@ func (h genericFileHandler) Serve(w http.ResponseWriter, r *http.Request) {
 		err := h.QueueRepository.AddJob(
 			r.Context(),
 			asr_job.FileAsrJob{
-				FilePath: file,
-				Lang:     "en",
+				FilePath:  file,
+				Lang:      "en",
+				CreatedAt: time.Now(),
 			},
 		)
 		if err != nil {
