@@ -2,11 +2,15 @@
 
 Automatic subtitle generation for your media using [whisper.cpp](https://github.com/ggerganov/whisper.cpp).
 
-Runs a webserver that upon receiving a webhook with a file path will use whisper.cpp to generate subtitles for your media and output them as srt
+Runs a webserver that upon receiving a webhook/post with a file path will use whisper.cpp to generate subtitles for your media and output them as srt
 files. Supports webhooks from Radarr & Sonarr.
 
 Whisper.cpp is resource intensive, and go-subgen stores the stripped
 audio in memory instead of saving it to the filesystem. If you have large media files and/or use large models you will need lots of ram.
+
+> [!note]
+> I am in the process of substantially rewritting go-subgen to provide support for many of the below TODO features and improve code quality.
+> This work is being done in the v1-dev branch, which has minimum functions implemented and uses whisper-cpp v1.5.
 
 ## Features
 
@@ -28,6 +32,7 @@ Create an issue or Discussion if you have other feature requests or comments.
 * CLBLAST & CUBLAS support for GPU acceleration khakers/go-subgen#39
 * Track ggerganov/whisper.cpp#1261
 * Track ggerganov/whisper.cpp#1060
+* Distributed ASR?
 
 ## Docker
 
@@ -35,8 +40,9 @@ Create an issue or Discussion if you have other feature requests or comments.
 
 #### Pre-built image
 
-If you encounter illegal instruction errors when the model attempts to run, you may need to build the image locally. See [Locally built image](#locally-built-image)
-The image currently requires your CPU support avx2, avx, and sse3. 
+> [!important]
+>  If you encounter illegal instruction errors when the model attempts to run, you may need to build the image locally. See [Locally built image](#locally-built-image).
+> The image currently requires your CPU support avx2, avx, and sse3. 
 
 ```yaml
 version: "3.8"
