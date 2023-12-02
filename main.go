@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	jobqueue "go-subgen/internal/adapters"
+	"go-subgen/internal/whisper_cpp_generator"
 
 	log "github.com/sirupsen/logrus"
-	"go-subgen/internal"
 	"go-subgen/internal/api"
 	"go-subgen/internal/api/webhooks"
 	"go-subgen/internal/configuration"
@@ -57,7 +57,7 @@ func main() {
 
 	jobHandler := api.NewJobHandler(asrQueue)
 
-	subtitleGenerator := internal.NewSubtitleGenerator(conf, asrQueue)
+	subtitleGenerator := whisper_cpp_generator.NewSubtitleGenerator(conf, asrQueue)
 
 	http.Handle("/webhooks/generic", http.HandlerFunc(handler.Serve))
 	http.Handle("/webhooks/tautulli", http.HandlerFunc(webhooks.ServeTautulli))

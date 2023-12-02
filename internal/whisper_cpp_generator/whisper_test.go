@@ -1,4 +1,4 @@
-package internal
+package whisper_cpp_generator
 
 // func TestGenerate(t *testing.T) {
 // 	type args struct {

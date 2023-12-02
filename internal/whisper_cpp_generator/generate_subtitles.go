@@ -1,4 +1,4 @@
-package internal
+package whisper_cpp_generator
 
 import (
 	"bytes"
@@ -11,6 +11,7 @@ import (
 	"github.com/kalafut/imohash"
 	"github.com/nightlyone/lockfile"
 	log "github.com/sirupsen/logrus"
+	"go-subgen/internal"
 	"go-subgen/internal/asr_job"
 	"go-subgen/internal/configuration"
 	"go-subgen/pkg"
@@ -106,7 +107,6 @@ func (s SubtitleGenerator) StartWorkers() {
 }
 
 func (s SubtitleGenerator) process(sub QueuedSub, conf configuration.Config) {
-	// todo we would want to update the job to in progress
 
 	log.Infof("Processing job for file %v, job id %v", sub.filePath, sub.AsrJobID)
 
@@ -167,7 +167,7 @@ func (s SubtitleGenerator) process(sub QueuedSub, conf configuration.Config) {
 	err, subFileName := conf.GetSubtitleFileName(configuration.SubtitleTemplateData{
 		FilePath:  sub.filePath,
 		FileType:  "srt",
-		FileName:  GetFileName(sub.filePath),
+		FileName:  internal.GetFileName(sub.filePath),
 		Lang:      conf.WhisperConf.TargetLang,
 		FileHash:  hashString,
 		ModelType: string(conf.ModelType),
@@ -208,7 +208,7 @@ func (s SubtitleGenerator) process(sub QueuedSub, conf configuration.Config) {
 
 	go progressChannelWorker(progressChannel, s.asrJobRepository, sub.AsrJobID)
 
-	err = Generate(model.GetModelPath(conf.ModelDir, conf.ModelType), buffer.Bytes(), subFile, progressChannel)
+	err = Generate(model.GetModelPath(conf.ModelDir, conf.ModelType), buffer.Bytes(), subFile, progressChannel, context.TODO())
 	if err != nil {
 		log.WithError(err).Errorln("Generating subtitles failed")
 		s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.Failed)
@@ -224,6 +224,14 @@ func (s SubtitleGenerator) process(sub QueuedSub, conf configuration.Config) {
 	log.Infof("finished generating subtitles for \"%v\" in %v seconds. Sub file saved to \"%v\"", sub.filePath, subDuration.Seconds(), subFilePath)
 }
 
+// progressChannelWorker is a function that updates the progress of a job in the given ASR job repository.
+// It listens to the provided channel for progress updates and calls the SetJobProgress function on the repository for each update.
+// The function takes a channel of float32, an implementation of the AsrJobRepository interface, and a job ID as parameters.
+// The channel is used to receive the progress updates, the repository is used to update the job progress, and the ID is used to identify the job.
+// Each progress update is passed to the SetJobProgress function on the repository with the provided job ID.
+// If an error occurs during the update, an error message is logged.
+// The function continues to listen to the progress channel until it is closed.
+// This function should be called as a goroutine, so that it can run concurrently with other tasks.
 func progressChannelWorker(a chan float32, repository asr_job.AsrJobRepository, id uint) {
 	for i := range a {
 		err := repository.SetJobProgress(context.TODO(), id, i)

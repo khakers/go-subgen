@@ -1,9 +1,8 @@
-package internal
+package whisper_cpp_generator
 
 import (
-	"fmt"
+	"context"
 	"io"
-	"time"
 
 	"github.com/ggerganov/whisper.cpp/bindings/go/pkg/whisper"
 	log "github.com/sirupsen/logrus"
@@ -11,7 +10,7 @@ import (
 	"go-subgen/internal/configuration"
 )
 
-func Generate(modelPath string, input []byte, subsWriter io.Writer, progressChannel chan float32) error {
+func Generate(modelPath string, input []byte, subsWriter io.Writer, progressChannel chan float32, ctx context.Context) error {
 
 	// Load the model
 	model, err := whisper.New(modelPath)
@@ -20,7 +19,7 @@ func Generate(modelPath string, input []byte, subsWriter io.Writer, progressChan
 	}
 	defer model.Close()
 
-	err = Process(model, input, subsWriter, configuration.Cfg.WhisperConf, progressChannel)
+	err = Process(model, input, subsWriter, configuration.Cfg.WhisperConf, progressChannel, ctx)
 	if err != nil {
 		return err
 	}
@@ -29,7 +28,7 @@ func Generate(modelPath string, input []byte, subsWriter io.Writer, progressChan
 
 // Adapted from code at https://github.com/ggerganov/whisper.cpp/blob/2bee2650c66497b8804e3c82426373703c6d97a1/bindings/go/examples/go-whisper/process.go
 
-func Process(model whisper.Model, input []byte, subsWriter io.Writer, whisperConfig configuration.WhisperConfig, progressChannel chan float32) error {
+func Process(model whisper.Model, input []byte, subsWriter io.Writer, whisperConfig configuration.WhisperConfig, progressChannel chan float32, ctx context.Context) error {
 	context, err := model.NewContext()
 	if err != nil {
 		return err
@@ -77,27 +76,6 @@ func Process(model whisper.Model, input []byte, subsWriter io.Writer, whisperCon
 	}
 
 	context.PrintTimings()
-	return outputSRT(subsWriter, context)
-}
-
-func outputSRT(writer io.Writer, context whisper.Context) (err error) {
-	n := 1
-	for {
-		segment, err := context.NextSegment()
-		if err == io.EOF {
-			return nil
-		} else if err != nil {
-			return err
-		}
-		_, err = fmt.Fprintln(writer, n)
-		_, err = fmt.Fprintln(writer, srtTimestamp(segment.Start), " --> ", srtTimestamp(segment.End))
-		_, err = fmt.Fprintln(writer, segment.Text)
-		_, err = fmt.Fprintln(writer, "")
-		n++
-	}
-	return err
-}
-
-func srtTimestamp(t time.Duration) string {
-	return fmt.Sprintf("%02d:%02d:%02d,%03d", t/time.Hour, (t%time.Hour)/time.Minute, (t%time.Minute)/time.Second, (t%time.Second)/time.Millisecond)
+	log.Debugf("finished processing, running SRT output")
+	return outputJSON(subsWriter, context)
 }
