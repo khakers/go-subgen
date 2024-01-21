@@ -1,6 +1,8 @@
 module go-subgen
 
-go 1.19
+go 1.21
+
+toolchain go1.21.4
 
 require (
 	github.com/cristalhq/aconfig v0.18.5
@@ -17,7 +19,12 @@ require (
 	github.com/go-audio/audio v1.0.0 // indirect
 	github.com/go-audio/riff v1.0.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/searKing/golang/go v1.2.112 // indirect
+	github.com/searKing/golang/tools v1.2.112 // indirect
+	github.com/searKing/golang/tools/go-enum v1.2.113 // indirect
 	github.com/twmb/murmur3 v1.1.6 // indirect
 	github.com/u2takey/go-utils v0.3.1 // indirect
-	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/mod v0.14.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/tools v0.16.1 // indirect
 )

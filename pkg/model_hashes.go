@@ -22,8 +22,11 @@ func GetModelShaHash(model configuration.Model) string {
 		return "8c30f0e44ce9560643ebd10bbe50cd20eafd3723"
 	case configuration.Large_v1:
 		return "b1caaf735c4cc1429223d5a74f0f4d0b9b59a299"
-	case configuration.Large:
+	case configuration.Large_v2:
 		return "0f4c8e34f21cf1a914c59d8b3ce882345ad349d6"
+	case configuration.Large_v3:
+	case configuration.Large:
+		return "ad82bf6a9043ceed055076d0fd39f5f186ff8062"
 	}
 	return ""
 }

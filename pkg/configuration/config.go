@@ -52,7 +52,10 @@ const (
 	Medium_en
 	Medium
 	Large_v1
+	// Large is currently equivalent to Large_v3
 	Large
+	Large_v3
+	Large_v2
 )
 
 var Cfg Config
