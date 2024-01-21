@@ -28,7 +28,7 @@ func _() {
 	_ = x[Large_v2-11]
 }
 
-const _Model_name = "Tiny_enTinyBase_enBaseSmall_enSmallMedium_enMediumLarge_v1LargeLarge_v3Large_v2"
+const _Model_name = "tiny_entinybase_enbasesmall_ensmallmedium_enmediumlarge_v1largelarge_v3large_v2"
 
 var _Model_index = [...]uint8{0, 7, 11, 18, 22, 30, 35, 44, 50, 58, 63, 71, 79}
 
