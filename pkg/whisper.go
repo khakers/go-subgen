@@ -57,7 +57,11 @@ func Process(model whisper.Model, input []byte, subsWriter io.Writer) error {
 		context.SetTokenSumThreshold(configuration.Cfg.WhisperConf.TokenThreshold)
 	}
 
-	context.SetLanguage(configuration.Cfg.TargetLang)
+	err = context.SetLanguage(configuration.Cfg.TargetLang)
+	if err != nil {
+		log.WithError(err).Error("Failed to set language. Is your model compatible with the target language?")
+		return err
+	}
 	context.SetSpeedup(configuration.Cfg.WhisperConf.WhisperSpeedup)
 
 	data := internal.ConvertPCMBytes(input)
