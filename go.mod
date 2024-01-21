@@ -6,7 +6,7 @@ toolchain go1.21.4
 
 require (
 	github.com/cristalhq/aconfig v0.18.5
-	github.com/ggerganov/whisper.cpp/bindings/go v0.0.0-20231124104155-9d6ebd877ce7
+	github.com/ggerganov/whisper.cpp/bindings/go v0.0.0-20240105151127-0b9af32a8b3f
 	github.com/go-audio/wav v1.1.0
 	github.com/kalafut/imohash v1.0.2
 	github.com/nightlyone/lockfile v1.0.0
