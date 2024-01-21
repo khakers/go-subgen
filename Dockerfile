@@ -41,9 +41,9 @@ RUN mkdir "/models" && mkdir /subgen
 WORKDIR /subgen
 
 # bump: static-ffmpeg /static-ffmpeg:([\d.]+)/ docker:mwader/static-ffmpeg|^6
-COPY --from=mwader/static-ffmpeg:6.1 /ffmpeg /usr/local/bin/
-#COPY --from=mwader/static-ffmpeg:6.1 /ffprobe /usr/local/bin/
-COPY --from=mwader/static-ffmpeg:6.1 /versions.json /subgen
+COPY --from=mwader/static-ffmpeg:6.1.1 /ffmpeg /usr/local/bin/
+#COPY --from=mwader/static-ffmpeg:6.1.1 /ffprobe /usr/local/bin/
+COPY --from=mwader/static-ffmpeg:6.1.1 /versions.json /subgen
 
 COPY --from=Build /app/main /subgen
 
