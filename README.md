@@ -10,7 +10,7 @@ audio in memory instead of saving it to the filesystem. If you have large media 
 
 > [!note]
 > I am in the process of substantially rewritting go-subgen to provide support for many of the below TODO features and improve code quality.
-> This work is being done in the v1-dev branch, which has minimum functions implemented and uses whisper-cpp v1.5.
+> This work is being done in the v1-dev and v1-dev-web branches, which are mostly functional.
 
 ## Features
 
@@ -31,7 +31,7 @@ Create an issue or Discussion if you have other feature requests or comments.
 * Integration into Bazarr as a provider (Not sure how to go about this, please open an issue if you have any ideas)
 * CLBLAST & CUBLAS support for GPU acceleration khakers/go-subgen#39
 * Track ggerganov/whisper.cpp#1261
-* Track ggerganov/whisper.cpp#1060
+* Track ggerganov/whisper.cpp#1060 (Not present in Go binding yet)
 * Distributed ASR?
 
 ## Docker
@@ -199,25 +199,25 @@ type SubtitleTemplateData struct {
 
 ## Options
 
-| Environment Variable                | Type      | Default                                        | Description                                                                                                  |
-|-------------------------------------|-----------|------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| MODEL_TYPE                          | Model     | base_en                                        | Whisper.cpp Model version `tiny_en, tiny base_en, base, small_en, small, medium_en, medium, large_v1, large` |
-| TARGET_LANG                         | string    | en                                             |                                                                                                              |
-| IGNORE_IF_EXISTING                  | bool      | true                                           |                                                                                                              |
-| MAX_CONCURRENCY                     | uint      | 1                                              |                                                                                                              |
-| MODEL_DIR                           | string    | /models/                                       |                                                                                                              |
-| LOG_LEVEL                           | log.Level | info                                           |                                                                                                              |
-| VERIFY_MODEL_HASH                   | bool      | true                                           | Verify that the downloaded model mashes the expected hash                                                    |
-| PORT                                | uint8     | 8095                                           | Web server port                                                                                              |
-| SUBTITLE_NAME_TEMPLATE              | string    | "{{.FileName}}.subgen.{{.Lang}}.{{.FileType}}" | [See Subfile-name-templating](#Subfile-name-templating)                                                      |
-| WHISPER_CONF_THREADS                | uint      |                                                | Number of threads to run Whisper.cpp on                                                                      |
-| WHISPER_CONF_WHISPER_SPEEDUP        | bool      |                                                |                                                                                                              |
-| WHISPER_CONF_TOKEN_THRESHOLD        | float32   |                                                |                                                                                                              |
-| WHISPER_CONF_TOKEN_SUM_THRESHOLD    | float32   |                                                |                                                                                                              |
-| WHISPER_CONF_MAX_SEGMENT_LENGTH     | uint      |                                                |                                                                                                              |
-| WHISPER_CONF_MAX_TOKENS_PER_SEGMENT | uint      |                                                |                                                                                                              |
-| FILE_PERMISSIONS_UID                | uint      | 0                                              | UID of the saved subtitle file                                                                               |
-| FILE_PERMISSIONS_GID                | uint      | 0                                              | GID of the saved subtitle file                                                                               |
+| Environment Variable                | Type      | Default                                        | Description                                                                                                                     |
+|-------------------------------------|-----------|------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| MODEL_TYPE                          | Model     | base_en                                        | Whisper.cpp Model version `tiny_en, tiny base_en, base, small_en, small, medium_en, medium, large_v1, large_v2, large_v3 large` |
+| TARGET_LANG                         | string    | en                                             |                                                                                                                                 |
+| IGNORE_IF_EXISTING                  | bool      | true                                           |                                                                                                                                 |
+| MAX_CONCURRENCY                     | uint      | 1                                              |                                                                                                                                 |
+| MODEL_DIR                           | string    | /models/                                       |                                                                                                                                 |
+| LOG_LEVEL                           | log.Level | info                                           |                                                                                                                                 |
+| VERIFY_MODEL_HASH                   | bool      | true                                           | Verify that the downloaded model mashes the expected hash                                                                       |
+| PORT                                | uint8     | 8095                                           | Web server port                                                                                                                 |
+| SUBTITLE_NAME_TEMPLATE              | string    | "{{.FileName}}.subgen.{{.Lang}}.{{.FileType}}" | [See Subfile-name-templating](#Subfile-name-templating)                                                                         |
+| WHISPER_CONF_THREADS                | uint      |                                                | Number of threads to run Whisper.cpp on                                                                                         |
+| WHISPER_CONF_WHISPER_SPEEDUP        | bool      |                                                |                                                                                                                                 |
+| WHISPER_CONF_TOKEN_THRESHOLD        | float32   |                                                |                                                                                                                                 |
+| WHISPER_CONF_TOKEN_SUM_THRESHOLD    | float32   |                                                |                                                                                                                                 |
+| WHISPER_CONF_MAX_SEGMENT_LENGTH     | uint      |                                                |                                                                                                                                 |
+| WHISPER_CONF_MAX_TOKENS_PER_SEGMENT | uint      |                                                |                                                                                                                                 |
+| FILE_PERMISSIONS_UID                | uint      | 0                                              | UID of the saved subtitle file                                                                                                  |
+| FILE_PERMISSIONS_GID                | uint      | 0                                              | GID of the saved subtitle file                                                                                                  |
 
 ## Acknowledgements
 
