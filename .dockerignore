@@ -22,5 +22,5 @@
 # !Makefile
 
 !/pkg
-!/web
+#!/web
 !/internal

@@ -34,7 +34,7 @@ func (repo *ArrayRepository) getNextId() uint {
 	return uint(repo.idCounter.Add(1))
 }
 
-func (repo *ArrayRepository) AddJob(ctx context.Context, job asr_job.FileAsrJob) error {
+func (repo *ArrayRepository) AddJob(ctx context.Context, job asr_job.FileAsrJob) (asr_job.FileAsrJob, error) {
 	repo.lock.Lock()
 	defer repo.lock.Unlock()
 
@@ -44,12 +44,13 @@ func (repo *ArrayRepository) AddJob(ctx context.Context, job asr_job.FileAsrJob)
 	repo.jobs.Add(job)
 	repo.newJobChan <- job.ID
 
-	return nil
+	return job, nil
 }
 
-func (repo *ArrayRepository) AddJobs(ctx context.Context, jobs []asr_job.FileAsrJob) {
+func (repo *ArrayRepository) AddJobs(ctx context.Context, jobs []asr_job.FileAsrJob) ([]asr_job.FileAsrJob, error) {
 	repo.lock.Lock()
 	defer repo.lock.Unlock()
+	var addedJobs []asr_job.FileAsrJob
 	for _, job := range jobs {
 
 		job.ID = repo.getNextId()
@@ -57,7 +58,9 @@ func (repo *ArrayRepository) AddJobs(ctx context.Context, jobs []asr_job.FileAsr
 
 		repo.jobs.Add(job)
 		repo.newJobChan <- job.ID
+		addedJobs = append(addedJobs, job)
 	}
+	return addedJobs, nil
 }
 
 func (repo *ArrayRepository) RemoveJob(ctx context.Context, jobId uint) (asr_job.FileAsrJob, error) {
@@ -96,7 +99,7 @@ func (repo *ArrayRepository) GetJob(ctx context.Context, jobId uint) (asr_job.Fi
 func (repo *ArrayRepository) GetNextJob(ctx context.Context) (asr_job.FileAsrJob, error) {
 	repo.lock.RLock()
 	defer repo.lock.RUnlock()
-	// todo we don't want the first job, we want the oldest job thats Queued (0)
+	// todo we don't want the first job, we want the oldest job that's Queued (0)
 	if repo.jobs.Size() > 0 {
 		if jobInterface, ok := repo.jobs.Get(0); ok {
 			if job, ok := jobInterface.(asr_job.FileAsrJob); ok {

@@ -108,6 +108,12 @@ func (s SubtitleGenerator) StartWorkers() {
 
 func (s SubtitleGenerator) process(sub QueuedSub, conf configuration.Config) {
 
+	ctx, cancel := context.WithCancel(context.Background())
+	context.AfterFunc(ctx, func() {
+
+	})
+
+	ctx.Done()
 	log.Infof("Processing job for file %v, job id %v", sub.filePath, sub.AsrJobID)
 
 	filehash, err := GetFileHash(sub.filePath)
@@ -141,14 +147,14 @@ func (s SubtitleGenerator) process(sub QueuedSub, conf configuration.Config) {
 	}
 	defer lock.Unlock()
 
-	s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.InProgress)
+	s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.AudioStripping)
 
 	buffer := new(bytes.Buffer)
 
 	start := time.Now()
 
 	logger := log.New()
-	logwriter := logger.WriterLevel(log.InfoLevel)
+	logwriter := logger.WriterLevel(log.DebugLevel)
 
 	err = pkg.StripAudioRaw(sub.filePath, buffer, logwriter)
 	if err != nil {
@@ -163,6 +169,21 @@ func (s SubtitleGenerator) process(sub QueuedSub, conf configuration.Config) {
 	audioStripDuration := time.Since(start)
 
 	log.Printf("completed audio stripping in %v seconds.", audioStripDuration.Seconds())
+	log.Debugf("stripped audio into buffer of size %v", buffer.Len())
+	log.Debugf("audio duration is %v seconds", buffer.Len()/2/16000)
+
+	err = s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.InProgress)
+
+	// This is just for updating the duration of the job
+	job, err := s.asrJobRepository.GetJob(context.TODO(), sub.AsrJobID)
+	if err != nil {
+		log.WithError(err).WithField("id", sub.AsrJobID).Errorln("failed to retrieve job when attempting to set it's duration")
+	}
+	job.DurationMS = (float32(buffer.Len()) / 2 / 16000) * 1000
+	_, err = s.asrJobRepository.UpdateJob(context.TODO(), sub.AsrJobID, job)
+	if err != nil {
+		log.WithError(err).WithField("id", sub.AsrJobID).Errorln("failed to update job duration")
+	}
 
 	err, subFileName := conf.GetSubtitleFileName(configuration.SubtitleTemplateData{
 		FilePath:  sub.filePath,
@@ -175,6 +196,7 @@ func (s SubtitleGenerator) process(sub QueuedSub, conf configuration.Config) {
 	if err != nil {
 		log.WithError(err).Errorln("failed to template subtitle file name")
 		s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.Failed)
+		cancel()
 		return
 	}
 
@@ -184,6 +206,8 @@ func (s SubtitleGenerator) process(sub QueuedSub, conf configuration.Config) {
 
 	subFile, err := os.Create(subFilePath)
 	if err != nil {
+		log.WithError(err).Errorln("failed to create subtitle file")
+		cancel()
 		return
 	}
 	defer func(subFile *os.File) {
@@ -208,11 +232,19 @@ func (s SubtitleGenerator) process(sub QueuedSub, conf configuration.Config) {
 
 	go progressChannelWorker(progressChannel, s.asrJobRepository, sub.AsrJobID)
 
-	err = Generate(model.GetModelPath(conf.ModelDir, conf.ModelType), buffer.Bytes(), subFile, progressChannel, context.TODO())
+	err = Generate(model.GetModelPath(conf.ModelDir, conf.ModelType), buffer.Bytes(), subFile, progressChannel, ctx)
 	if err != nil {
 		log.WithError(err).Errorln("Generating subtitles failed")
 		s.asrJobRepository.SetJobStatus(context.TODO(), sub.AsrJobID, asr_job.Failed)
+		cancel()
 		return
+	}
+	close(progressChannel)
+	cancel()
+
+	err = s.asrJobRepository.SetJobProgress(context.TODO(), sub.AsrJobID, 100)
+	if err != nil {
+		log.WithError(err).Errorln("failed to set job progress (final)")
 	}
 
 	subDuration := time.Since(start)

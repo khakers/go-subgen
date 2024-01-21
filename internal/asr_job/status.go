@@ -4,6 +4,7 @@ type JobStatus uint8
 
 const (
 	Queued JobStatus = iota
+	AudioStripping
 	InProgress
 	Canceled
 	Complete

@@ -6,8 +6,8 @@ import (
 
 // AsrJobRepository is the interface for the job store
 type AsrJobRepository interface {
-	AddJob(ctx context.Context, job FileAsrJob) error
-	AddJobs(ctx context.Context, jobs []FileAsrJob)
+	AddJob(ctx context.Context, job FileAsrJob) (FileAsrJob, error)
+	AddJobs(ctx context.Context, jobs []FileAsrJob) ([]FileAsrJob, error)
 	RemoveJob(ctx context.Context, JobId uint) (FileAsrJob, error)
 	GetJob(ctx context.Context, JobId uint) (FileAsrJob, error)
 	GetNextJob(ctx context.Context) (FileAsrJob, error)

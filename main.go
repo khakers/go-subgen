@@ -4,7 +4,10 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/r3labs/sse/v2"
 	jobqueue "go-subgen/internal/adapters"
+	"go-subgen/internal/interceptors"
+	"go-subgen/internal/middlewares"
 	"go-subgen/internal/whisper_cpp_generator"
 
 	log "github.com/sirupsen/logrus"
@@ -51,7 +54,13 @@ func main() {
 		}
 	}))
 
-	asrQueue := jobqueue.NewArrayRepository()
+	asrArrayQueue := jobqueue.NewArrayRepository()
+
+	sseServer := sse.New()
+
+	asrQueue := interceptors.NewAsrEventInterceptor(asrArrayQueue)
+
+	progressServer := api.NewSseAsrEventStreamFromSseServer(sseServer, asrQueue.EventChannels)
 
 	handler := api.NewGenericFileHandler(asrQueue)
 
@@ -59,18 +68,38 @@ func main() {
 
 	subtitleGenerator := whisper_cpp_generator.NewSubtitleGenerator(conf, asrQueue)
 
-	http.Handle("/webhooks/generic", http.HandlerFunc(handler.Serve))
-	http.Handle("/webhooks/tautulli", http.HandlerFunc(webhooks.ServeTautulli))
-	http.Handle("/webhooks/radarr", http.HandlerFunc(webhooks.ServeRadarr))
-	http.Handle("/webhooks/sonarr", http.HandlerFunc(webhooks.ServeSonarr))
-	http.Handle("/api/v1/jobs", http.HandlerFunc(jobHandler.Serve))
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/webhooks/generic", handler.Serve)
+	mux.HandleFunc("/webhooks/tautulli", webhooks.ServeTautulli)
+	mux.HandleFunc("/webhooks/radarr", webhooks.ServeRadarr)
+	mux.HandleFunc("/webhooks/sonarr", webhooks.ServeSonarr)
+	mux.HandleFunc("/api/v1/jobs", jobHandler.Serve)
+	mux.HandleFunc("/api/events", sseServer.ServeHTTP)
 
 	subtitleGenerator.StartWorkers()
-	err = http.ListenAndServe(":"+strconv.Itoa(int(conf.ServerConfig.Port)), nil)
+	progressServer.Start()
+
+	// Sourced from https://www.jvt.me/posts/2023/09/01/golang-nethttp-global-middleware/
+	wrapped := use(mux, middlewares.LoggingMiddleware, middlewares.CorsMiddleware)
+
+	err = http.ListenAndServe(":"+strconv.Itoa(int(conf.ServerConfig.Port)), wrapped)
 	if err != nil {
 		log.WithError(err).Fatal("web server failure")
 	}
 
 	log.Printf("listening on %v", conf.ServerConfig.Port)
 
+}
+
+// Sourced from https://www.jvt.me/posts/2023/09/01/golang-nethttp-global-middleware/
+func use(r *http.ServeMux, middlewares ...func(next http.Handler) http.Handler) http.Handler {
+	var s http.Handler
+	s = r
+
+	for _, mw := range middlewares {
+		s = mw(s)
+	}
+
+	return s
 }

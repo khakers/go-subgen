@@ -43,10 +43,11 @@ func (h genericFileHandler) Serve(w http.ResponseWriter, r *http.Request) {
 
 	for _, file := range data.Files {
 		log.Debugf("Queued %v (API)", file)
-		err := h.QueueRepository.AddJob(
+		_, err := h.QueueRepository.AddJob(
 			r.Context(),
 			asr_job.FileAsrJob{
-				FilePath:  file,
+				FilePath: file,
+				// todo lang handling
 				Lang:      "en",
 				CreatedAt: time.Now(),
 			},

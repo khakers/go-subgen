@@ -52,3 +52,5 @@ ENV MODEL_DIR=/models
 EXPOSE 8095
 
 CMD ["/subgen/main"]
+
+HEALTHCHECK CMD curl -f http://localhost:8095/healthcheck || exit 1

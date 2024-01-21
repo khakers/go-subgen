@@ -63,8 +63,11 @@ func StripAudio(videoFile string, writer io.Writer, errOut io.Writer) error {
 	return err
 }
 
+// todo would be nice to take a reader instead of a filepath
 // StripAudioRaw strips the audio from a video file and writes it as raw PCM signed 16-bit little-endian audio to supplied writer
+// ffmpeg output is written to errOut
 func StripAudioRaw(videoFile string, writer io.Writer, errOut io.Writer) error {
+	const loglevel = "info"
 	err := ffmpeg.
 		Input(videoFile).
 		Output("pipe:",
@@ -73,13 +76,12 @@ func StripAudioRaw(videoFile string, writer io.Writer, errOut io.Writer) error {
 				"ac":       "1",
 				"c:a":      "pcm_s16le",
 				"f":        "s16le",
-				"loglevel": "error",
+				"loglevel": loglevel,
 			}).
 		WithErrorOutput(errOut).
 		WithOutput(writer).
 		Run()
 	return err
-
 }
 
 func StripAudioToRawBuffer(videoFile string) (error, *[]byte) {
