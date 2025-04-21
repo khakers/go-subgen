@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.21.4
 
 require (
-	github.com/cristalhq/aconfig v0.18.6
+	github.com/cristalhq/aconfig v0.18.7
 	github.com/ggerganov/whisper.cpp/bindings/go v0.0.0-20240105151127-0b9af32a8b3f
 	github.com/go-audio/wav v1.1.0
 	github.com/kalafut/imohash v1.1.0
