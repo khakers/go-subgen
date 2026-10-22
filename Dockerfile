@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.5-labs
 
-FROM golang:1.21-bullseye as Build
+FROM golang:1.27-trixie as Build
 
 
 RUN apt install make g++
@@ -25,7 +25,7 @@ COPY . ./
 
 RUN go build -o main
 
-FROM ubuntu:22.04
+FROM ubuntu:26.04
 
 # Install ca-certificates because apparently we might not actually want ssl to work by default?
 RUN set -e; \
