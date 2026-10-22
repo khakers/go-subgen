@@ -1,8 +1,6 @@
 module go-subgen
 
-go 1.23.0
-
-toolchain go1.24.1
+go 1.25.0
 
 require (
 	github.com/cristalhq/aconfig v0.18.6
@@ -22,6 +20,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/twmb/murmur3 v1.1.6 // indirect
 	github.com/u2takey/go-utils v0.3.1 // indirect
-	golang.org/x/net v0.38.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
 )
